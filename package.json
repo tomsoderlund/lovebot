@@ -1,0 +1,11 @@
+{
+	"name": "lovebot",
+	"version": "0.0.1",
+	"scripts": {},
+	"dependencies": {
+		"async": "^2.6.0",
+		"lodash": "^4.17.4",
+		"twit": "^2.2.9"
+	},
+	"devDependencies": {}
+}
