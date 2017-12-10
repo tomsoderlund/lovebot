@@ -16,8 +16,6 @@
 	"license": "ISC",
 	"dependencies": {
 		"async": "^2.6.0",
-		"lodash": "^4.17.4",
-		"twit": "^2.2.9",
 		"body-parser": "^1.15.2",
 		"express": "^4.14.0",
 		"glob": "^7.1.2",
@@ -31,7 +29,9 @@
 		"react-redux": "^5.0.6",
 		"redux": "^3.7.2",
 		"redux-api": "^0.11.1",
-		"redux-thunk": "^2.2.0"
+		"redux-thunk": "^2.2.0",
+		"tinycolor2": "^1.4.1",
+		"twit": "^2.2.9"
 	},
 	"devDependencies": {
 		"nodemon": "^1.12.1"

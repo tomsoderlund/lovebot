@@ -8,20 +8,22 @@
 
 const mongoose = require('mongoose');
 
+mongoose.Promise = global.Promise;
+
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost/lovebot'
 
 // Private functions
 
-const openDatabase = function () {
-	mongoose.connect(MONGODB_URI);
+const openDatabase = function (cb) {
+	mongoose.connect(MONGODB_URI, { useMongoClient: true });
 	var db = mongoose.connection;
-	db.on('error', function () {
-		throw new Error('unable to connect to database at ' + MONGODB_URI);
-	});
+	db.on('error', console.error.bind(console, 'Database error:'));
+	if (cb) cb();
 };
 
-const closeDatabase = function () {
+const closeDatabase = function (cb) {
 	mongoose.connection.close();
+	if (cb) cb();
 };
 
 // Public API

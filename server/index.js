@@ -1,7 +1,6 @@
 const express = require('express');
 const server = express();
 const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
 const glob = require('glob');
 
 const next = require('next')
@@ -9,7 +8,7 @@ const dev = process.env.NODE_ENV !== 'production'
 const app = next({ dev })
 const handle = app.getRequestHandler()
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost/lovebot'
+const database = require('./services/database');
 const PORT = process.env.PORT || 3001
 
 app.prepare().then(() => {
@@ -27,9 +26,7 @@ app.prepare().then(() => {
 	});
 
 	// MongoDB
-	mongoose.connect(MONGODB_URI, { useMongoClient: true });
-	var db = mongoose.connection;
-	db.on('error', console.error.bind(console, 'connection error:'));
+	database.open();
 
 	// API routes
 	const rootPath = require('path').normalize(__dirname + '/..');

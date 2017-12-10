@@ -94,7 +94,14 @@ class IndexPage extends React.Component {
 		const {users} = this.props;
 
 		const userList = users.data
-			? users.data.map((user, index) => <UserItem user={user} index={index} key={index} inProgress={this.state.inProgress} handleUpdate={this.handleUpdate.bind(this)} handleDelete={this.handleDelete.bind(this)}/>)
+			? users.data.map((user, index) => <UserItem
+					user={user}
+					index={index}
+					key={index}
+					inProgress={this.state.inProgress}
+					handleUpdate={this.handleUpdate.bind(this)}
+					handleDelete={this.handleDelete.bind(this)}
+				/>)
 			: [];
 
 		return <div>
@@ -103,18 +110,27 @@ class IndexPage extends React.Component {
 				description='A love-finding Twitter bot'
 			/>
 
-			<h1>Users</h1>
-
-			{userList}
-			<div>
-				<input placeholder='Enter a user twitterHandle' value={this.state.twitterHandle} onChange={this.handleChange.bind(this)} disabled={this.state.inProgress}/>
-				<button onClick={this.handleAdd.bind(this)} disabled={this.state.inProgress}>Add user</button>
-				<style jsx>{`
-					div {
-						margin-top: 1em;
-					}
-				`}</style>
+			<div className='options'>
+				<input type='checkbox'/>Only people
 			</div>
+
+			<div className='userList'>
+				{userList}
+			</div>
+
+			<style jsx>{`
+				div {
+					margin-top: 1em;
+				}
+				.userList {
+					/* Flexbox: */
+					display: flex;
+					flex-direction: row;
+					justify-content: center;
+					align-items: flex-start;
+					flex-wrap: wrap;						
+				}
+			`}</style>
 
 		</div>
 	};

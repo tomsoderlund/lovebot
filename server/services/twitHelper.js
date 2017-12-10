@@ -131,7 +131,9 @@ var makeTweetFavorite = function (tweetObj, callback) {
 // ----- Users -----
 
 var getUser = function (screen_name, callback) {
-	twitObj.get('users/lookup', { screen_name: screen_name }, callback);
+	twitObj.get('users/lookup', { screen_name: screen_name }, (err, user) => {
+		callback(err, user[0]);
+	});
 };
 
 var followUser = function (userObj, callback) {
