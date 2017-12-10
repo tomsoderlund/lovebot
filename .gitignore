@@ -1,5 +1,6 @@
 
 node_modules/
+.next/
 
 local_env.sh
 tweet_example.txt

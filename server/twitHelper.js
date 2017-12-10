@@ -21,11 +21,9 @@ TWITTER_SEARCH_LIMIT
 */
 
 var init = function (configObj, cbAfterInit) {
-
 	configObject = configObj || process.env;
-
 	if (!configObject.TWITTER_CONSUMER_KEY) {
-		console.error('Twitter settings not found in environment.');
+		console.error('TwitHelper: Twitter settings not found in environment.');
 		if (cbAfterInit) cbAfterInit('No settings');
 	}
 	else {
@@ -35,12 +33,9 @@ var init = function (configObj, cbAfterInit) {
 			"access_token": configObject.TWITTER_ACCESS_TOKEN,
 			"access_token_secret": configObject.TWITTER_ACCESS_TOKEN_SECRET
 		});
-
-		console.log('Debug mode:', configObject.DEBUG_MODE);
-
+		console.log('TwitHelper Debug mode:', configObject.DEBUG_MODE);
 		if (cbAfterInit) cbAfterInit(null);
 	}
-
 };
 
 var triggerOnDirectMessage = function () {
@@ -132,6 +127,13 @@ var makeTweetFavorite = function (tweetObj, callback) {
 	}
 };
 
+
+// ----- Users -----
+
+var getUser = function (screen_name, callback) {
+	twitObj.get('users/lookup', { screen_name: screen_name }, callback);
+};
+
 var followUser = function (userObj, callback) {
 	if (!userObj.following) {
 		console.log('Follow: ' + formatLiveDebugFlag() + ' @' + userObj.screen_name);
@@ -195,6 +197,8 @@ module.exports = {
 	// makeTweetFavorite(tweetObj, callback)
 	makeTweetFavorite: makeTweetFavorite,
 
+	// getUser(screen_name, callback)
+	getUser: getUser,
 	// followUser(userObj, callback)
 	followUser: followUser,
 	// unfollowUser(userObj, callback)
