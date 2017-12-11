@@ -33,18 +33,25 @@ const updateUserFromTwitter = function (twitterUser, cb) {
 		else {
 			// Create new
 	console.log('NEW', twitterUser.screen_name);
-			User.create(userData, cb);
+			User.create(userData, (err, newUser) => {
+				lookupUserAndUpdate(newUser, cb);
+			});
 		}
 	});
 };
 
 const findUsersInTweets = function (tweets, cb) {
-	const userArray = _(tweets).map(tweet => {
-		// Tweeting user + users being mentioned
-		return [_.get(tweet, 'user'), ..._.get(tweet, 'entities.user_mentions')];
-	}).flatten().uniq().compact().value();
-	console.log('findUsersInTweets', userArray.length);
-	async.each(userArray, updateUserFromTwitter, cb);
+	if (_.isEmpty(tweets)) {
+		cb();
+	}
+	else {
+		const userArray = _(tweets).map(tweet => {
+			// Tweeting user + users being mentioned
+			return [_.get(tweet, 'user'), ..._.get(tweet, 'entities.user_mentions')];
+		}).flatten().uniq().compact().value();
+		console.log('findUsersInTweets', userArray.length);
+		async.each(userArray, updateUserFromTwitter, cb);
+	}
 };
 
 const searchTwitterMessages = function (cb) {
@@ -68,23 +75,41 @@ const lookupUserAndUpdate = function (dbUser, cb) {
 
 const checkUsersWithMissingInfo = function (cb) {
 	console.log('checkUsersWithMissingInfo');
-	var sortOptions = { imageUrl: 1, dateUpdated: 1 };
-	var limit = 30;
+	const sortOptions = { imageUrl: 1, dateUpdated: 1 };
+	const limit = 30;
 	User.find({}).sort(sortOptions).limit(limit).exec()
 		.then(function (users) {
 			async.each(users, lookupUserAndUpdate, cb);
 		})
-		.catch(function (findErr) {
-			console.error(findErr);
-			cb();
-		});
+		.catch(errorHandler.bind(undefined, cb));
+};
+
+const errorHandler = function (cb, errObj) {
+	console.error('Error:', errObj);
+	cb();
+};
+
+const checkUsersWithMissingGender = function (cb) {
+	console.log('checkUsersWithMissingGender');
+	const sortOptions = { gender: 1 };
+	const limit = 50;
+	User.find({}).sort(sortOptions).limit(limit).exec()
+		.then(function (users) {
+			async.each(users, (dbUser, cbUser) => {
+				console.log('  add gender:', dbUser.name, _.get(nameLookup.lookup(dbUser.name), 'gender') );
+				_.merge(dbUser, nameLookup.lookup(dbUser.name));
+				dbUser.save(cbUser);
+			}, cb);
+		})
+		.catch(errorHandler.bind(undefined, cb));
 };
 
 
 async.series([
 	twitHelper.init.bind(undefined, undefined),
 	database.open,
-	searchTwitterMessages,
-	checkUsersWithMissingInfo,
+	//searchTwitterMessages,
+	//checkUsersWithMissingInfo,
+	checkUsersWithMissingGender,
 	database.close,
 ]);

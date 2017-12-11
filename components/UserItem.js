@@ -5,7 +5,6 @@ const getColorByDate = date => {
 	const maxAge = 0.5 * 60;
 	const mixLevel = Math.round(Math.min(100 * ageInMinutes / maxAge, 100));
 	const newColor = tinycolor.mix('lime', 'white', mixLevel);
-	console.log('ageInMinutes', newColor.toString(), mixLevel, ageInMinutes);
 	return newColor
 }
 

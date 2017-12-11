@@ -39,11 +39,7 @@ class IndexPage extends React.Component {
 
 	constructor (props) {
 		super(props)
-		this.state = { twitterHandle: '', users: props.users }
-	}
-
-	handleChange (event) {
-		this.setState({ twitterHandle: event.target.value });
+		this.state = { currentFilter: 'woman', users: props.users }
 	}
 
 	componentDidMount() {
@@ -53,7 +49,11 @@ class IndexPage extends React.Component {
 		//dispatch(reduxApi.actions.oneUser({ id: '59c9743888a7e95e93c3bbea' }));
 
 		// Fetch all /api/users
-		dispatch(reduxApi.actions.users.sync());
+		dispatch(reduxApi.actions.users.sync({ gender: this.state.currentFilter }));
+	}
+/*
+	handleChange (event) {
+		this.setState({ twitterHandle: event.target.value });
 	}
 
 	handleAdd (event) {
@@ -88,6 +88,15 @@ class IndexPage extends React.Component {
 		// Actual data request
 		this.props.dispatch(reduxApi.actions.users.delete({ id: userId }, callbackWhenDone));
 	}
+*/
+	handleFilterChange (event) {
+		// Progress indicator
+		this.setState({ currentFilter: event.target.value, inProgress: true });
+		const callbackWhenDone = () => this.setState({ inProgress: null });
+		// Actual data request
+		this.props.dispatch(reduxApi.actions.users.reset('sync'));
+		this.props.dispatch(reduxApi.actions.users.sync({ gender: event.target.value }, callbackWhenDone));
+	}
 
 	render () {
 
@@ -99,8 +108,6 @@ class IndexPage extends React.Component {
 					index={index}
 					key={index}
 					inProgress={this.state.inProgress}
-					handleUpdate={this.handleUpdate.bind(this)}
-					handleDelete={this.handleDelete.bind(this)}
 				/>)
 			: [];
 
@@ -111,7 +118,11 @@ class IndexPage extends React.Component {
 			/>
 
 			<div className='options'>
-				<input type='checkbox'/>Only people
+				<select value={this.state.currentFilter} onChange={this.handleFilterChange.bind(this)} >
+					<option value="woman">Women</option>
+					<option value="man">Men</option>
+					<option value="other">Other</option>
+				</select>
 			</div>
 
 			<div className='userList'>
@@ -123,12 +134,17 @@ class IndexPage extends React.Component {
 					margin-top: 1em;
 				}
 				.userList {
-					/* Flexbox: */
 					display: flex;
 					flex-direction: row;
 					justify-content: center;
 					align-items: flex-start;
 					flex-wrap: wrap;						
+				}
+				.options {
+					display: flex;
+					flex-direction: row;
+					justify-content: space-around;
+					align-items: flex-start;
 				}
 			`}</style>
 
