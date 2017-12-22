@@ -1,6 +1,7 @@
 const express = require('express');
 const server = express();
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const glob = require('glob');
 
 const next = require('next')
@@ -35,6 +36,7 @@ app.prepare().then(() => {
 
 	// Initialize Passport and restore authentication state, if any, from the session.
 	// Just reusing TWITTER_CONSUMER_SECRET here, no need to be exact
+	server.use(cookieParser());
 	server.use(require('express-session')({ secret: process.env.TWITTER_CONSUMER_SECRET, resave: true, saveUninitialized: true }));
 	server.use(passport.initialize());
 	server.use(passport.session());
@@ -43,11 +45,11 @@ app.prepare().then(() => {
 	const customRequestHandler = (page, req, res) => {
 		const mergedQuery = Object.assign({}, req.query, req.params);
 		app.render(req, res, page, mergedQuery);
-	}
+	};
 
 	// Custom routes
 	server.get('/login/twitter', passport.authenticate('twitter'));
-	server.get('/login/twitter/return', passport.authenticate('twitter', { failureRedirect: '/?loginFailed=true' }), (req, res) => res.redirect('/'));
+	server.get('/login/twitter/return', passport.authenticate('twitter', { successRedirect: '/', failureRedirect: '/?loginFailed=true' }));
 	server.get('/', customRequestHandler.bind(undefined, '/'));
 	server.get('*', defaultRequestHandler);
 
