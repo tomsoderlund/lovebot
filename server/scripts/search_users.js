@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const async = require('async');
+const NodeGeocoder = require('node-geocoder');
 
 const twitHelper = require('../services/twitHelper');
 const helpers = require('../services/helpers');
@@ -14,12 +15,13 @@ const convertTwitterUserToDbUser = twitterUser => {
 
 	const dbUser = _.merge(
 		{},
-		_.pick(twitterUser, ['name', 'location', 'description']),
+		_.pick(twitterUser, ['name', 'description']),
 		nameLookup.lookup(twitterUser.name),
 		{
 			twitterHandle: twitterUser.screen_name,
 			websiteUrl: _.get(twitterUser, 'entities.url.urls.0.expanded_url', twitterUser.url),
 			imageUrl: getBiggerImage(twitterUser.profile_image_url_https),
+			locationDetails: { original: twitterUser.location },
 			dateUpdated: new Date(),
 		}
 	);
@@ -102,8 +104,8 @@ const updateUserTwitterDetails = function (dbUser, cb) {
 	}
 };
 
-const checkUsersWithMissingInfo = function (cb) {
-	console.log('checkUsersWithMissingInfo');
+const checkUsersWithMissingTwitterInfo = function (cb) {
+	console.log('checkUsersWithMissingTwitterInfo');
 	const sortOptions = { imageUrl: 1, dateUpdated: 1 };
 	const limit = 30;
 	User.find({}).sort(sortOptions).limit(limit).exec()
@@ -121,7 +123,7 @@ const errorHandler = function (cb, errObj) {
 const checkUsersWithMissingGender = function (cb) {
 	console.log('checkUsersWithMissingGender');
 	const sortOptions = { gender: 1 };
-	const limit = 50;
+	const limit = 100;
 	User.find({}).sort(sortOptions).limit(limit).exec()
 		.then(function (users) {
 			async.each(users, (dbUser, cbUser) => {
@@ -133,14 +135,48 @@ const checkUsersWithMissingGender = function (cb) {
 		.catch(errorHandler.bind(undefined, cb));
 };
 
+const checkUsersWithMissingLocation = function (cb) {
+	const options = {
+		provider: 'google',
+		apiKey: process.env.GOOGLE_MAPS_GEOCODING_API_KEY,
+		formatter: null
+	};
+	const geocoder = NodeGeocoder(options);
+
+	console.log('checkUsersWithMissingLocation');
+	const filter = { locationDetails: { $exists: false }, location: { $exists: true, $ne: '' } };
+	const sort = 'location';
+	const limit = 10;
+	User.find(filter).sort(sort).limit(limit).exec()
+		.then(function (users) {
+			async.each(users, (dbUser, cbUser) => {
+				const locationStr = _.get(dbUser, '_doc.locationDetails.original', _.get(dbUser, '_doc.location'));
+				const locationStrFix = locationStr.replace(/[\t?;:‘’“”"'`!@#$€%^&§°*<>()\[\]{}_\+=\/\|\\]/g,'');
+				geocoder.geocode(locationStrFix, function(err, result) {
+					if (err) {
+						console.log(`  Geocoding error: ${err}`);
+						cbUser();
+					}
+					else {
+						_.merge(dbUser, { locationDetails: _.pick(result[0], ['city', 'countryCode', 'latitude', 'longitude']) });
+						dbUser.locationDetails.found = _.isEmpty(result) ? false : true;
+						console.log(`  ${dbUser.name}: ${locationStrFix} (${locationStr})`, dbUser.locationDetails.found);
+						dbUser.save(cbUser);
+					}
+				});
+			}, cb);
+		})
+		.catch(errorHandler.bind(undefined, cb));
+};
 
 async.series([
 	twitHelper.init.bind(undefined, undefined),
 	database.open,
 
 	searchTwitterMessages,
-	checkUsersWithMissingInfo,
+	checkUsersWithMissingTwitterInfo,
 	checkUsersWithMissingGender,
+	checkUsersWithMissingLocation,
 
 	database.close,
 ]);
