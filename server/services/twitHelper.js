@@ -2,9 +2,12 @@
 
 const _ = require('lodash');
 const Twit = require('twit') // https://github.com/ttezel/twit
+const daLimiter = require('./daLimiter');
 
-var twitObj;
-var configObject;
+let twitObj;
+let configObject;
+
+const DALIMITER_OPTIONS = { time: 10 * 1000, useFirstArgumentInKey: true }
 
 /*
 
@@ -20,7 +23,7 @@ TWITTER_SEARCH_LIMIT
 
 */
 
-var init = function (configObj, cbAfterInit) {
+const init = function (configObj, cbAfterInit) {
 	configObject = configObj || process.env;
 	if (!configObject.TWITTER_CONSUMER_KEY) {
 		console.error('TwitHelper: Twitter settings not found in environment.');
@@ -38,7 +41,7 @@ var init = function (configObj, cbAfterInit) {
 	}
 };
 
-var triggerOnDirectMessage = function () {
+const triggerOnDirectMessage = function () {
 	var stream = twitObj.stream('user');
 
 	stream.on('direct_message', function (event) {
@@ -50,26 +53,26 @@ var triggerOnDirectMessage = function () {
 	// });
 }
 
-var formatTweet = function (tweetObj) {
+const formatTweet = function (tweetObj) {
 	if (tweetObj)
 		return '@' + tweetObj.user.screen_name + ': “' + tweetObj.text + '”';
 	else
 		return '';
 };
 
-var formatTweetURL = function (tweetObj) {
+const formatTweetURL = function (tweetObj) {
 	if (tweetObj)
 		return 'https://twitter.com/' + tweetObj.user.screen_name + '/status/' + tweetObj.id_str;
 	else
 		return '';
 };
 
-var formatLiveDebugFlag = function () {
+const formatLiveDebugFlag = function () {
 	return (configObject.DEBUG_MODE ? '(debug)' : '(LIVE)');
 };
 
 // https://support.twitter.com/articles/71577
-var searchTweets = function (searchStr, options, callback) {
+const searchTweets = function (searchStr, options, callback) {
 	// sinceDate = sinceDate || 
 	// moment(sinceDate).format("YYYY-MM-DD")
 	// 'banana since:2011-11-11'
@@ -86,7 +89,7 @@ var searchTweets = function (searchStr, options, callback) {
 	})
 }
 
-var postTweet = function (message, replyToStatusObj, callback) {
+const postTweet = function (message, replyToStatusObj, callback) {
 	var params = {
 		status: message,
 	};
@@ -110,7 +113,7 @@ var postTweet = function (message, replyToStatusObj, callback) {
 	}
 };
 
-var makeTweetFavorite = function (tweetObj, callback) {
+const makeTweetFavorite = function (tweetObj, callback) {
 	if (!tweetObj.favorited) {
 		console.log('Favorite: ' + formatLiveDebugFlag() + ' ' + formatTweet(tweetObj) + '; ' + formatTweetURL(tweetObj));
 		if (!configObject.DEBUG_MODE) {
@@ -130,13 +133,14 @@ var makeTweetFavorite = function (tweetObj, callback) {
 
 // ----- Users -----
 
-var getUser = function (screen_name, callback) {
+const getUser = function (screen_name, callback) {
 	twitObj.get('users/lookup', { screen_name: screen_name }, (err, user) => {
 		callback(err, user[0]);
 	});
 };
+const getUserLimited = daLimiter.limit(getUser, DALIMITER_OPTIONS);
 
-var followUser = function (userObj, callback) {
+const followUser = function (userObj, callback) {
 	if (!userObj.following) {
 		console.log('Follow: ' + formatLiveDebugFlag() + ' @' + userObj.screen_name);
 		if (!configObject.DEBUG_MODE) {
@@ -156,7 +160,7 @@ var followUser = function (userObj, callback) {
 	}
 };
 
-var unfollowUser = function (userObj, callback) {
+const unfollowUser = function (userObj, callback) {
 	console.log('Unfollow: ' + formatLiveDebugFlag() + ' @' + userObj.screen_name);
 	if (!configObject.DEBUG_MODE) {
 		twitObj.post('friendships/destroy', { screen_name: userObj.screen_name }, function (err, data, response) {
@@ -169,7 +173,7 @@ var unfollowUser = function (userObj, callback) {
 };
 
 // “Following” friends/list, then friendships/lookup
-var getMyFriends = function (callback) {
+const getMyFriends = function (callback) {
 	var params = {
 		screen_name: configObject.TWITTER_SCREEN_NAME,
 		count: 100
@@ -182,7 +186,7 @@ var getMyFriends = function (callback) {
 	})
 }
 
-var getFollowers = function (screen_name, options, callback) {
+const getFollowers = function (screen_name, options, callback) {
 	var params = {
 		screen_name: screen_name,
 		count: 100
@@ -192,6 +196,8 @@ var getFollowers = function (screen_name, options, callback) {
 		callback(err, _.get(results, 'users'));
 	})
 };
+const getFollowersLimited = daLimiter.limit(getFollowers, DALIMITER_OPTIONS);
+
 
 //------ PUBLIC METHODS ------
 
@@ -211,7 +217,7 @@ module.exports = {
 	makeTweetFavorite: makeTweetFavorite,
 
 	// getUser(screen_name, callback)
-	getUser: getUser,
+	getUser: getUserLimited,
 	// followUser(userObj, callback)
 	followUser: followUser,
 	// unfollowUser(userObj, callback)
@@ -219,6 +225,6 @@ module.exports = {
 	// getMyFriends(callback)
 	getMyFriends: getMyFriends,
 	// getFollowers(screen_name, options, callback)
-	getFollowers: getFollowers,
+	getFollowers: getFollowersLimited,
 
 }

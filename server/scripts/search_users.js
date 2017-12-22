@@ -58,8 +58,7 @@ const findUsersInTweets = function (tweets, cb) {
 		console.log('findUsersInTweets', userArray.length);
 		async.series([
 			async.each.bind(undefined, userArray, saveTwitterUser),
-			//async.each.bind(undefined, userArray, addUserFollowers),
-			// TODO: implement a cache limit first
+			async.each.bind(undefined, userArray, addUserFollowers),
 		],
 		cb);
 	}
@@ -68,7 +67,9 @@ const findUsersInTweets = function (tweets, cb) {
 const addUserFollowers = function (twitterUser, cb) {
 	console.log(`addUserFollowers ${twitterUser.screen_name}`);
 	twitHelper.getFollowers(twitterUser.screen_name, {}, (err, users) => {
-		err ? cb(err) : async.each(users, saveTwitterUser, cb);
+		!!err
+			? cb()
+			: async.each(users, saveTwitterUser, cb);
 	});
 }
 
@@ -81,20 +82,24 @@ const searchTwitterMessages = function (cb) {
 };
 
 const updateUserTwitterDetails = function (dbUser, cb) {
-	twitHelper.getUser(dbUser.twitterHandle, (err, twitterUser) => {
-		console.log(`updateUserTwitterDetails: ${_.get(twitterUser, 'screen_name')}`);
-		if (twitterUser) {
-			async.series([
-				saveTwitterUser.bind(undefined, twitterUser),
-				// Scan their last tweet too
-				findUsersInTweets.bind(undefined, [twitterUser.status]),
-			],
-			cb);			
-		}
-		else {
-			cb();
-		}
-	});
+	if (dbUser.twitterHandle) {
+		twitHelper.getUser(dbUser.twitterHandle, (err, twitterUser) => {
+			if (twitterUser) {
+				async.series([
+					saveTwitterUser.bind(undefined, twitterUser),
+					// Scan their last tweet too
+					findUsersInTweets.bind(undefined, [twitterUser.status]),
+				],
+				cb);
+			}
+			else {
+				cb();
+			}
+		});
+	}
+	else {
+		cb();
+	}
 };
 
 const checkUsersWithMissingInfo = function (cb) {
