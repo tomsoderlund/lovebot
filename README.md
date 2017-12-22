@@ -19,4 +19,4 @@ In production:
 	npm run build
 	npm start
 
-Navigate to `http://localhost:3001/`
+Navigate to `http://localhost:3003/`

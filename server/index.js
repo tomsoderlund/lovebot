@@ -6,10 +6,10 @@ const glob = require('glob');
 const next = require('next')
 const dev = process.env.NODE_ENV !== 'production'
 const app = next({ dev })
-const handle = app.getRequestHandler()
+const defaultRequestHandler = app.getRequestHandler()
 
 const database = require('./services/database');
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT || 3003
 
 app.prepare().then(() => {
 
@@ -32,11 +32,17 @@ app.prepare().then(() => {
 	const rootPath = require('path').normalize(__dirname + '/..');
 	glob.sync(rootPath + '/server/routes/*.js').forEach(controllerPath => require(controllerPath)(server));
 
-	// Next.js route
-	server.get('*', (req, res) => {
-		return handle(req, res)
-	})
+	// Next.js request handling
+	const customRequestHandler = (page, req, res) => {
+		const mergedQuery = Object.assign({}, req.query, req.params);
+		app.render(req, res, page, mergedQuery);
+	}
 
+	// Custom routes
+	server.get('/', customRequestHandler.bind(undefined, '/'));
+	server.get('*', defaultRequestHandler);
+
+	// Start server
 	server.listen(PORT, function () {
 		console.log(`App running on http://localhost:${PORT}/`)
 	});

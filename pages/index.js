@@ -1,18 +1,12 @@
-import fetch from 'isomorphic-unfetch'
+import _ from 'lodash';
 
-import React from 'react';
+import { Component } from 'react';
 import PropTypes from 'prop-types';
+
 import { createStore, applyMiddleware, combineReducers } from 'redux';
-import thunk from 'redux-thunk';
-
-import reduxApi from '../lib/reduxApi'; // our redux-rest object
-import { connectComponentWithStore } from '../lib/reduxApi';
-
-const createStoreWithMiddleware = applyMiddleware(thunk)(createStore);
-const reducer = combineReducers(reduxApi.reducers);
-const store = createStoreWithMiddleware(reducer);
-
-const mapStateToProps = (state) => ({ users: state.users });
+import thunkMiddleware from 'redux-thunk';
+import withRedux from 'next-redux-wrapper';
+import reduxApi from '../lib/reduxApi';
 
 import PageHead from '../components/PageHead';
 import UserItem from '../components/UserItem';
@@ -37,20 +31,19 @@ class IndexPage extends React.Component {
 
 	};
 
+	static async getInitialProps ({store, isServer, pathname, query}) {
+		const { dispatch } = store;
+		// Get all Users
+		const currentFilter = 'woman';
+		const resultPromise = await dispatch(reduxApi.actions.users.sync({ gender: currentFilter }));
+		return resultPromise;
+	}
+
 	constructor (props) {
 		super(props)
 		this.state = { currentFilter: 'woman', users: props.users }
 	}
 
-	componentDidMount() {
-		const {dispatch} = this.props;
-
-		// Specify id for GET: /api/users/59c9743888a7e95e93c3bbea
-		//dispatch(reduxApi.actions.oneUser({ id: '59c9743888a7e95e93c3bbea' }));
-
-		// Fetch all /api/users
-		dispatch(reduxApi.actions.users.sync({ gender: this.state.currentFilter }));
-	}
 /*
 	handleChange (event) {
 		this.setState({ twitterHandle: event.target.value });
@@ -153,5 +146,9 @@ class IndexPage extends React.Component {
 
 }
 
-const IndexPageConnected = connectComponentWithStore(IndexPage, store, mapStateToProps);
+const createStoreWithThunkMiddleware = applyMiddleware(thunkMiddleware)(createStore);
+const makeStore = (state, enhancer) => createStoreWithThunkMiddleware(combineReducers(reduxApi.reducers), state);
+const mapStateToProps = (state) => ({ users: state.users });
+
+const IndexPageConnected = withRedux({ createStore: makeStore, mapStateToProps })(IndexPage)
 export default IndexPageConnected;
