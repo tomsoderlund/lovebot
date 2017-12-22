@@ -176,7 +176,7 @@ const unfollowUser = function (userObj, callback) {
 const getMyFriends = function (callback) {
 	var params = {
 		screen_name: configObject.TWITTER_SCREEN_NAME,
-		count: 100
+		count: configObject.TWITTER_SEARCH_LIMIT
 	};
 	twitObj.get('friends/list', params, function (err, result) {
 		var userNames = _.pluck(result.users, 'screen_name');
@@ -189,7 +189,7 @@ const getMyFriends = function (callback) {
 const getFollowers = function (screen_name, options, callback) {
 	var params = {
 		screen_name: screen_name,
-		count: 100
+		count: configObject.TWITTER_SEARCH_LIMIT
 	};
 	twitObj.get('followers/list', params, (err, results) => {
 		// Use 'next_cursor', 'next_cursor_str', 'previous_cursor', 'previous_cursor_str'
