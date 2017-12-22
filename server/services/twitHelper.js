@@ -168,7 +168,7 @@ var unfollowUser = function (userObj, callback) {
 	}
 };
 
-// friends/list, then friendships/lookup
+// “Following” friends/list, then friendships/lookup
 var getMyFriends = function (callback) {
 	var params = {
 		screen_name: configObject.TWITTER_SCREEN_NAME,
@@ -181,6 +181,17 @@ var getMyFriends = function (callback) {
 		})
 	})
 }
+
+var getFollowers = function (screen_name, options, callback) {
+	var params = {
+		screen_name: screen_name,
+		count: 100
+	};
+	twitObj.get('followers/list', params, (err, results) => {
+		// Use 'next_cursor', 'next_cursor_str', 'previous_cursor', 'previous_cursor_str'
+		callback(err, _.get(results, 'users'));
+	})
+};
 
 //------ PUBLIC METHODS ------
 
@@ -207,5 +218,7 @@ module.exports = {
 	unfollowUser: unfollowUser,
 	// getMyFriends(callback)
 	getMyFriends: getMyFriends,
+	// getFollowers(screen_name, options, callback)
+	getFollowers: getFollowers,
 
 }
