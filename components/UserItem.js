@@ -1,4 +1,5 @@
-const tinycolor = require('tinycolor2');
+import _ from 'lodash';
+import tinycolor from 'tinycolor2';
 
 const getColorByDate = date => {
 	const ageInMinutes = (new Date() - new Date(date)) / (1000 * 60);
@@ -15,8 +16,9 @@ const UserItem = ({user, index, inProgress, handleUpdate, handleDelete}) => (
 	>
 		<a href={ 'https://twitter.com/' + user.twitterHandle } target='_blank'>
 			<img className='portrait' src={user.imageUrl} alt={user.name}/>
-			<div className='name'>{user.name}</div>
-			<div className='twitterHandle'>@{user.twitterHandle}</div>
+			<h3 className='name'>{user.name}</h3>
+			<p className='twitterHandle'>@{user.twitterHandle}</p>
+			<p className='location'>{_.get(user,'locationDetails.city',user.location)}</p>
 		</a>
 		<button>I’m interested</button>
 
@@ -32,12 +34,21 @@ const UserItem = ({user, index, inProgress, handleUpdate, handleDelete}) => (
 				justify-content: center;
 				align-items: center;
 			}
+			.user p {
+				font-size: 0.8em;
+				color: gray;
+			}
 			.user > a {
+				text-decoration: none;
 				/* Flexbox: */
 				display: flex;
 				flex-direction: column;
 				justify-content: center;
 				align-items: center;
+			}
+			.user > a:hover {
+				text-decoration: underline;
+				opacity: 0.8;
 			}
 			.portrait {
 				width: 6em;
@@ -46,8 +57,6 @@ const UserItem = ({user, index, inProgress, handleUpdate, handleDelete}) => (
 				border-radius: 50%;
 			}
 			.twitterHandle {
-				font-size: 0.8em;
-				color: gray;
 			}
 			.inProgress {
 				opacity: 0.3;

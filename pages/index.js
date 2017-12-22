@@ -10,6 +10,7 @@ import reduxApi from '../lib/reduxApi';
 
 import PageHead from '../components/PageHead';
 import UserItem from '../components/UserItem';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 class IndexPage extends React.Component {
 
@@ -34,14 +35,14 @@ class IndexPage extends React.Component {
 	static async getInitialProps ({store, isServer, pathname, query}) {
 		const { dispatch } = store;
 		// Get all Users
-		const currentFilter = 'woman';
-		const resultPromise = await dispatch(reduxApi.actions.users.sync({ gender: currentFilter }));
+		const gender = 'woman';
+		const resultPromise = await dispatch(reduxApi.actions.users.sync({ gender: gender }));
 		return resultPromise;
 	}
 
 	constructor (props) {
 		super(props)
-		this.state = { currentFilter: 'woman', users: props.users }
+		this.state = { gender: 'woman', users: props.users }
 	}
 
 /*
@@ -82,13 +83,17 @@ class IndexPage extends React.Component {
 		this.props.dispatch(reduxApi.actions.users.delete({ id: userId }, callbackWhenDone));
 	}
 */
-	handleFilterChange (event) {
+	handleFilterChange (property, event) {
 		// Progress indicator
-		this.setState({ currentFilter: event.target.value, inProgress: true });
+		let newFilter = _.merge({}, this.state);
+		newFilter[property] = event.target.value;
+		newFilter.inProgress = true;
+		this.setState(newFilter);
+		// Data request
 		const callbackWhenDone = () => this.setState({ inProgress: null });
-		// Actual data request
 		this.props.dispatch(reduxApi.actions.users.reset('sync'));
-		this.props.dispatch(reduxApi.actions.users.sync({ gender: event.target.value }, callbackWhenDone));
+		const query = _.pick(newFilter, ['gender', 'city']);
+		this.props.dispatch(reduxApi.actions.users.sync(query, callbackWhenDone));
 	}
 
 	render () {
@@ -111,14 +116,20 @@ class IndexPage extends React.Component {
 			/>
 
 			<div className='options'>
-				<select value={this.state.currentFilter} onChange={this.handleFilterChange.bind(this)} >
+				<select value={this.state.gender} onChange={this.handleFilterChange.bind(this, 'gender')} >
 					<option value="woman">Women</option>
 					<option value="man">Men</option>
 					<option value="other">Other</option>
 				</select>
+				<select value={this.state.city} onChange={this.handleFilterChange.bind(this, 'city')} >
+					<option value="all">All</option>
+					<option>Stockholm</option>
+				</select>
 			</div>
 
-			<div className='userList'>
+			<LoadingSpinner hide={!this.state.inProgress}/>
+
+			<div className={'userList ' + (this.state.inProgress ? 'hidden' : '')}>
 				{userList}
 			</div>
 

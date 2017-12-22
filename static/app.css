@@ -1,11 +1,22 @@
 * {
 	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
 }
 
 body {
 	margin: 1em;
 	font-family: 'Lato', sans-serif;
 	font-size: 20px;
+}
+
+h1, h2, h3 {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+h3 {
+	font-size: 1em;
 }
 
 @media only screen and (max-width: 480px) {
@@ -75,4 +86,16 @@ input:disabled,
 textarea:disabled,
 select:disabled {
 	background-color: whitesmoke;
+}
+
+
+.hidden {
+	display: none !important;
+}
+
+main {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
 }

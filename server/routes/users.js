@@ -6,10 +6,17 @@ const User = require('../models/user');
 
 const searchUsers = function (req, res, next) {
 	let query = {};
+	// Gender
 	if (req.query.gender) {
 		query.gender = req.query.gender;
 		if (req.query.gender === 'other') query.gender = null;
 	}
+	// City
+	if (req.query.city) {
+		query.locationDetails = { city: req.query.city };
+		if (req.query.city === 'all') query.locationDetails = null;
+	}
+	console.log(`query`, query);
 	User.find(query, (err, result) => {
 		req.crudify = { err, result };
 		next(err);

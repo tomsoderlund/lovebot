@@ -152,15 +152,15 @@ const checkUsersWithMissingLocation = function (cb) {
 			async.each(users, (dbUser, cbUser) => {
 				const locationStr = _.get(dbUser, '_doc.locationDetails.original', _.get(dbUser, '_doc.location'));
 				const locationStrFix = locationStr.replace(/[\t?;:‘’“”"'`!@#$€%^&§°*<>()\[\]{}_\+=\/\|\\]/g,'');
-				geocoder.geocode(locationStrFix, function(err, result) {
+				geocoder.geocode(locationStrFix, function(err, geoResult) {
 					if (err) {
 						console.log(`  Geocoding error: ${err}`);
 						cbUser();
 					}
 					else {
-						_.merge(dbUser, { locationDetails: _.pick(result[0], ['city', 'countryCode', 'latitude', 'longitude']) });
-						dbUser.locationDetails.found = _.isEmpty(result) ? false : true;
-						console.log(`  ${dbUser.name}: ${locationStrFix} (${locationStr})`, dbUser.locationDetails.found);
+						_.merge(dbUser, { locationDetails: _.pick(geoResult[0], ['city', 'countryCode', 'latitude', 'longitude']) });
+						dbUser.locationDetails.found = _.isEmpty(geoResult) ? false : true;
+						console.log(`  ${dbUser.name}: ${locationStrFix} (${locationStr})`, dbUser.locationDetails.found, dbUser.locationDetails.city, dbUser._id);
 						dbUser.save(cbUser);
 					}
 				});
