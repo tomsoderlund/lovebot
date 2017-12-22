@@ -32,12 +32,14 @@ class IndexPage extends React.Component {
 
 	};
 
-	static async getInitialProps ({store, isServer, pathname, query}) {
+	static async getInitialProps ({store, isServer, pathname, query, req}) {
+		//console.log(`getInitialProps`, req.sessionID, _.get(req, 'session.passport.user.username'));
 		const { dispatch } = store;
+		const loggedInUser = _.get(req, 'session.passport.user.username');
 		// Get all Users
 		const gender = 'woman';
-		const resultPromise = await dispatch(reduxApi.actions.users.sync({ gender: gender }));
-		return resultPromise;
+		const users = await dispatch(reduxApi.actions.users.sync({ gender: gender }));
+		return { users, loggedInUser };
 	}
 
 	constructor (props) {
@@ -114,6 +116,8 @@ class IndexPage extends React.Component {
 				title='Lovebot'
 				description='A love-finding Twitter bot'
 			/>
+
+			<a href='/login/twitter' className={this.props.loggedInUser ? 'hidden' : ''}>Login</a>
 
 			<div className='options'>
 				<select value={this.state.gender} onChange={this.handleFilterChange.bind(this, 'gender')} >
