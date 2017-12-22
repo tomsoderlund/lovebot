@@ -1,12 +1,12 @@
 const _ = require('lodash');
 const async = require('async');
 
-const twitHelper = require('./services/twitHelper');
-const helpers = require('./services/helpers');
-const nameLookup = require('./services/nameLookup');
+const twitHelper = require('../services/twitHelper');
+const helpers = require('../services/helpers');
+const nameLookup = require('../services/nameLookup');
 
-const database = require('./services/database');
-const User = require('./models/user');
+const database = require('../services/database');
+const User = require('../models/user');
 
 const updateUserFromTwitter = function (twitterUser, cb) {
 
@@ -63,13 +63,18 @@ const searchTwitterMessages = function (cb) {
 
 const updateUserTwitterDetails = function (dbUser, cb) {
 	twitHelper.getUser(dbUser.twitterHandle, (err, twitterUser) => {
-		console.log('lookup', dbUser.twitterHandle);
-		async.series([
-			updateUserFromTwitter.bind(undefined, twitterUser),
-			// Scan their last tweet too
-			findUsersInTweets.bind(undefined, [twitterUser.status]),
-		],
-		cb);
+		console.log('lookup', twitterUser);
+		if (twitterUser) {
+			async.series([
+				updateUserFromTwitter.bind(undefined, twitterUser),
+				// Scan their last tweet too
+				findUsersInTweets.bind(undefined, [twitterUser.status]),
+			],
+			cb);			
+		}
+		else {
+			cb();
+		}
 	});
 };
 
@@ -108,7 +113,7 @@ const checkUsersWithMissingGender = function (cb) {
 async.series([
 	twitHelper.init.bind(undefined, undefined),
 	database.open,
-	//searchTwitterMessages,
+	searchTwitterMessages,
 	//checkUsersWithMissingInfo,
 	checkUsersWithMissingGender,
 	database.close,
