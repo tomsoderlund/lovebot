@@ -34,7 +34,7 @@ const updateUserFromTwitter = function (twitterUser, cb) {
 			// Create new
 	console.log('NEW', twitterUser.screen_name);
 			User.create(userData, (err, newUser) => {
-				lookupUserAndUpdate(newUser, cb);
+				updateUserTwitterDetails(newUser, cb);
 			});
 		}
 	});
@@ -61,7 +61,7 @@ const searchTwitterMessages = function (cb) {
 	});
 };
 
-const lookupUserAndUpdate = function (dbUser, cb) {
+const updateUserTwitterDetails = function (dbUser, cb) {
 	twitHelper.getUser(dbUser.twitterHandle, (err, twitterUser) => {
 		console.log('lookup', dbUser.twitterHandle);
 		async.series([
@@ -79,7 +79,7 @@ const checkUsersWithMissingInfo = function (cb) {
 	const limit = 30;
 	User.find({}).sort(sortOptions).limit(limit).exec()
 		.then(function (users) {
-			async.each(users, lookupUserAndUpdate, cb);
+			async.each(users, updateUserTwitterDetails, cb);
 		})
 		.catch(errorHandler.bind(undefined, cb));
 };
