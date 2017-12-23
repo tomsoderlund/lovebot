@@ -60,7 +60,7 @@ const findUsersInTweets = function (tweets, cb) {
 		console.log('findUsersInTweets', userArray.length);
 		async.series([
 			async.each.bind(undefined, userArray, saveTwitterUser),
-			async.each.bind(undefined, userArray, addUserFollowers),
+			async.each.bind(undefined, userArray, addUserFriends), // addUserFollowers
 		],
 		cb);
 	}
@@ -69,6 +69,15 @@ const findUsersInTweets = function (tweets, cb) {
 const addUserFollowers = function (twitterUser, cb) {
 	console.log(`addUserFollowers ${twitterUser.screen_name}`);
 	twitHelper.getFollowers(twitterUser.screen_name, {}, (err, users) => {
+		!!err
+			? cb()
+			: async.each(users, saveTwitterUser, cb);
+	});
+}
+
+const addUserFriends = function (twitterUser, cb) {
+	console.log(`addUserFriends ${twitterUser.screen_name}`);
+	twitHelper.getFriends(twitterUser.screen_name, {}, (err, users) => {
 		!!err
 			? cb()
 			: async.each(users, saveTwitterUser, cb);
@@ -90,7 +99,7 @@ const updateUserTwitterDetails = function (dbUser, cb) {
 				async.series([
 					saveTwitterUser.bind(undefined, twitterUser),
 					// Scan their last tweet too
-					findUsersInTweets.bind(undefined, [twitterUser.status]),
+					//findUsersInTweets.bind(undefined, [twitterUser.status]),
 				],
 				cb);
 			}
@@ -106,9 +115,10 @@ const updateUserTwitterDetails = function (dbUser, cb) {
 
 const checkUsersWithMissingTwitterInfo = function (cb) {
 	console.log('checkUsersWithMissingTwitterInfo');
-	const sortOptions = { imageUrl: 1, dateUpdated: 1 };
+	const filter = { imageUrl: { $exists: false } };
+	const sort = '-dateCreated';
 	const limit = 30;
-	User.find({}).sort(sortOptions).limit(limit).exec()
+	User.find(filter).sort(sort).limit(limit).exec()
 		.then(function (users) {
 			async.each(users, updateUserTwitterDetails, cb);
 		})
@@ -122,13 +132,15 @@ const errorHandler = function (cb, errObj) {
 
 const checkUsersWithMissingGender = function (cb) {
 	console.log('checkUsersWithMissingGender');
-	const sortOptions = { gender: 1 };
+	const filter = { isPerson: { $exists: false } };
+	const sort = '-dateCreated';
 	const limit = 100;
-	User.find({}).sort(sortOptions).limit(limit).exec()
+	User.find(filter).sort(sort).limit(limit).exec()
 		.then(function (users) {
 			async.each(users, (dbUser, cbUser) => {
-				console.log('  add gender:', dbUser.name, _.get(nameLookup.lookup(dbUser.name), 'gender') );
-				_.merge(dbUser, nameLookup.lookup(dbUser.name));
+				const nameInfo = nameLookup.lookup(dbUser.name) || { isPerson: false };
+				console.log('  add gender:', dbUser.name, nameInfo );
+				_.merge(dbUser, nameInfo);
 				dbUser.save(cbUser);
 			}, cb);
 		})

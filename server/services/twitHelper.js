@@ -186,9 +186,21 @@ const getMyFriends = function (callback) {
 	})
 }
 
+const getFriends = function (screen_name, options, callback) {
+	var params = {
+		screen_name: screen_name || configObject.TWITTER_SCREEN_NAME,
+		count: configObject.TWITTER_SEARCH_LIMIT
+	};
+	twitObj.get('followers/list', params, (err, results) => {
+		// Use 'next_cursor', 'next_cursor_str', 'previous_cursor', 'previous_cursor_str'
+		callback(err, _.get(results, 'users'));
+	})
+};
+const getFriendsLimited = daLimiter.limit(getFriends, DALIMITER_OPTIONS);
+
 const getFollowers = function (screen_name, options, callback) {
 	var params = {
-		screen_name: screen_name,
+		screen_name: screen_name || configObject.TWITTER_SCREEN_NAME,
 		count: configObject.TWITTER_SEARCH_LIMIT
 	};
 	twitObj.get('followers/list', params, (err, results) => {
@@ -224,6 +236,8 @@ module.exports = {
 	unfollowUser: unfollowUser,
 	// getMyFriends(callback)
 	getMyFriends: getMyFriends,
+	// getFriends(screen_name, options, callback)
+	getFriends: getFriendsLimited,
 	// getFollowers(screen_name, options, callback)
 	getFollowers: getFollowersLimited,
 

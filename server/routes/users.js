@@ -5,19 +5,20 @@ const mongooseCrudify = require('mongoose-crudify');
 const User = require('../models/user');
 
 const searchUsers = function (req, res, next) {
-	let query = {};
+	let filter = {};
 	// Gender
 	if (req.query.gender) {
-		query.gender = req.query.gender;
-		if (req.query.gender === 'other') query.gender = null;
+		filter.gender = req.query.gender;
+		if (req.query.gender === 'other') filter.gender = null;
 	}
 	// City
 	if (req.query.city) {
-		query.locationDetails = { city: req.query.city };
-		if (req.query.city === 'all') query.locationDetails = null;
+		filter.locationDetails = { city: req.query.city };
+		if (req.query.city === 'all') filter.locationDetails = null;
 	}
-	console.log(`query`, query);
-	User.find(query, (err, result) => {
+	const sort = '-dateCreated';
+	const limit = 100;
+	User.find(filter).sort(sort).limit(limit).exec((err, result) => {
 		req.crudify = { err, result };
 		next(err);
 	});
