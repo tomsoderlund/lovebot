@@ -4,14 +4,14 @@ import tinycolor from 'tinycolor2';
 const getColorByDate = date => {
 	const ageInMinutes = (new Date() - new Date(date)) / (1000 * 60);
 	const maxAge = 0.5 * 60;
-	const mixLevel = Math.round(Math.min(100 * ageInMinutes / maxAge, 100));
-	const newColor = tinycolor.mix('lime', 'white', mixLevel);
+	const mixLevel = Math.round(Math.min(1 * 100 * ageInMinutes / maxAge, 100));
+	const newColor = tinycolor.mix('palegreen', 'white', mixLevel); // higher value = more white
 	return newColor
 }
 
 const UserItem = ({user, index, inProgress, handleUpdate, handleDelete}) => (
 	<div
-		className={'user' + (inProgress === user._id ? ' inProgress' : '')}
+		className={'userCard' + (inProgress === user._id ? ' inProgress' : '')}
 		style={{ backgroundColor: getColorByDate(user.dateUpdated) }}
 	>
 		<a href={ 'https://twitter.com/' + user.twitterHandle } target='_blank'>
@@ -23,31 +23,35 @@ const UserItem = ({user, index, inProgress, handleUpdate, handleDelete}) => (
 		<button>I’m interested</button>
 
 		<style jsx>{`
-			.user {
-				border: 1px solid gray;
+			.userCard {
 				width: 10em;
 				margin: 0.2em;
-				padding: 0.2em;
+				padding: 1em;
+				border-radius: 0.2em;
+				//border: 1px solid #e6e6e6;
+				box-shadow: 0 2px 2px rgba(0,0,0, 0.4);
+				width: 90vmin;
+				max-width: 15em;
 				/* Flexbox: */
 				display: inline-flex;
 				flex-direction: column;
 				justify-content: center;
 				align-items: center;
 			}
-			.user p {
+			.userCard p {
 				font-size: 0.8em;
 				color: gray;
 			}
-			.user > a {
+			.userCard > a {
 				text-decoration: none;
+				color: inherit;
 				/* Flexbox: */
 				display: flex;
 				flex-direction: column;
 				justify-content: center;
 				align-items: center;
 			}
-			.user > a:hover {
-				text-decoration: underline;
+			.userCard:hover {
 				opacity: 0.8;
 			}
 			.portrait {
