@@ -18,7 +18,7 @@ const UserItem = ({user, index, inProgress, handleUpdate, handleDelete}) => (
 			<img className='portrait' src={user.imageUrl} alt={user.name} title={user.description} />
 			<h3 className='name'>{user.name}</h3>
 			<p className='twitterHandle'>@{user.twitterHandle}</p>
-			<p className='location'>{_.get(user,'locationDetails.city',user.location)}</p>
+			<p className='location'>{_.get(user,'locationDetails.city',_.get(user,'locationDetails.original',user.location))}</p>
 		</a>
 		<button>I’m interested</button>
 
@@ -38,9 +38,16 @@ const UserItem = ({user, index, inProgress, handleUpdate, handleDelete}) => (
 				justify-content: center;
 				align-items: center;
 			}
+			.userCard:hover {
+				opacity: 0.8;
+			}
 			.userCard p {
 				font-size: 0.8em;
 				color: gray;
+				margin: 0.2em 0;
+			}
+			.userCard button {
+				margin: 0.5em 0;
 			}
 			.userCard > a {
 				text-decoration: none;
@@ -50,9 +57,6 @@ const UserItem = ({user, index, inProgress, handleUpdate, handleDelete}) => (
 				flex-direction: column;
 				justify-content: center;
 				align-items: center;
-			}
-			.userCard:hover {
-				opacity: 0.8;
 			}
 			.portrait {
 				width: 6em;
