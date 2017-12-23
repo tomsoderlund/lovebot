@@ -34,13 +34,15 @@ const saveTwitterUser = function (twitterUser, cb) {
 	User.findOne({ twitterHandle: twitterUser.screen_name }, (err, foundUser) => {
 		if (foundUser) {
 			// Update existing
+			foundUser.description = foundUser.description || newUserData.description;
 			foundUser.imageUrl = foundUser.imageUrl || newUserData.imageUrl;
+			foundUser.locationDetails = _.has(foundUser, 'locationDetails.original') ? foundUser.locationDetails : newUserData.locationDetails;
 			if (_.isEmpty(foundUser.websiteUrl) || _.includes(foundUser.websiteUrl, 't.co')) foundUser.websiteUrl = newUserData.websiteUrl;
 			foundUser.save(cb);
 		}
 		else {
 			// Create new
-	console.log('NEW', twitterUser.screen_name);
+			console.log(`New user: ${twitterUser.screen_name}`);
 			User.create(newUserData, (err, newUser) => {
 				updateUserTwitterDetails(newUser, cb);
 			});
@@ -94,6 +96,7 @@ const searchTwitterMessages = function (cb) {
 
 const updateUserTwitterDetails = function (dbUser, cb) {
 	if (dbUser.twitterHandle) {
+		console.log(`updateUserTwitterDetails: ${dbUser.twitterHandle}`);
 		twitHelper.getUser(dbUser.twitterHandle, (err, twitterUser) => {
 			if (twitterUser) {
 				async.series([
@@ -115,7 +118,7 @@ const updateUserTwitterDetails = function (dbUser, cb) {
 
 const checkUsersWithMissingTwitterInfo = function (cb) {
 	console.log('checkUsersWithMissingTwitterInfo');
-	const filter = { imageUrl: { $exists: false } };
+	const filter = { $or: [{ imageUrl: { $exists: false } }, { description: { $exists: false } }, { locationDetails: {} }] };
 	const sort = '-dateCreated';
 	const limit = 30;
 	User.find(filter).sort(sort).limit(limit).exec()
