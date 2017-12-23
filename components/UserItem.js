@@ -1,6 +1,8 @@
 import _ from 'lodash';
 import tinycolor from 'tinycolor2';
 
+import IconButton from './IconButton'
+
 const getColorByDate = date => {
 	const ageInMinutes = (new Date() - new Date(date)) / (1000 * 60);
 	const maxAge = 0.5 * 60;
@@ -22,7 +24,11 @@ const UserItem = ({user, index, inProgress, isOpen, handleClick}) => (
 		<p className={'description collapsable ' + (isOpen ? 'open' : 'collapsed')}>{user.description}</p>
 		<p className='location'>{_.get(user,'locationDetails.city',_.get(user,'locationDetails.original',user.location))}</p>
 		
-		<button>I’m interested</button>
+		<nav>
+			<IconButton label='Ask out' icon='handshake' />
+			<IconButton label='Save' icon='star' />
+			<IconButton label='Pass' icon='thumbs-down' />
+		</nav>
 
 		<style jsx>{`
 			.userCard {
@@ -51,9 +57,6 @@ const UserItem = ({user, index, inProgress, isOpen, handleClick}) => (
 				color: gray;
 				margin: 0.2em 0;
 			}
-			.userCard button {
-				margin: 0.5em 0;
-			}
 			.userCard a {
 				text-decoration: none;
 				color: inherit;
@@ -69,6 +72,17 @@ const UserItem = ({user, index, inProgress, isOpen, handleClick}) => (
 			}
 			.inProgress {
 				opacity: 0.3;
+			}
+			nav {
+				background-color: rgba(0,0,0, 0.5);
+				width: 95vmin;
+				max-width: 15em;
+				margin-top: 1em;
+				margin-bottom: -1em;
+				display: inline-flex;
+				flex-direction: row;
+				justify-content: center;
+				align-items: center;
 			}
 		`}</style>
 	</div>
