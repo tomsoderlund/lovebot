@@ -25,7 +25,7 @@ const UserItem = ({user, index, inProgress, handleUpdate, handleDelete}) => (
 		<style jsx>{`
 			.userCard {
 				width: 10em;
-				margin: 0.2em;
+				margin: 0.5em;
 				padding: 1em;
 				border-radius: 0.2em;
 				//border: 1px solid #e6e6e6;
