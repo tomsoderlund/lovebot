@@ -9,6 +9,8 @@ const PageHead = ({title, description}) => (
 		<meta name='viewport' content='initial-scale=1.0, width=device-width'/>
 		<link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet"/>
 		<link rel='stylesheet' href='/static/app.css'/>
+		<link rel='stylesheet' href='/static/css/fontawesome.css'/>
+		<link rel='stylesheet' href='/static/css/fa-regular.css'/>
 	</Head>
 );
 export default PageHead;
