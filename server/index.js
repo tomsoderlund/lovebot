@@ -1,7 +1,6 @@
 const express = require('express');
 const server = express();
 const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
 const glob = require('glob');
 
 const next = require('next')
@@ -10,6 +9,7 @@ const app = next({ dev })
 const defaultRequestHandler = app.getRequestHandler()
 
 const database = require('./services/database');
+const cookieSession = require('cookie-session')
 const passport = require('./services/passportTwitter');
 const PORT = process.env.PORT || 3003
 
@@ -36,8 +36,11 @@ app.prepare().then(() => {
 
 	// Initialize Passport and restore authentication state, if any, from the session.
 	// Just reusing TWITTER_CONSUMER_SECRET here, no need to be exact
-	server.use(cookieParser());
-	server.use(require('express-session')({ secret: process.env.TWITTER_CONSUMER_SECRET, resave: true, saveUninitialized: true }));
+	server.use(cookieSession({
+		name: 'lovebot',
+		keys: [process.env.TWITTER_CONSUMER_SECRET],
+		maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+	}));
 	server.use(passport.initialize());
 	server.use(passport.session());
 

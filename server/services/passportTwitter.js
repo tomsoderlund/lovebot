@@ -8,6 +8,8 @@
 
 'use strict';
 
+const _ = require('lodash');
+
 const passport = require('passport');
 const passportTwitterStrategy = require('passport-twitter').Strategy;
 
@@ -33,7 +35,9 @@ passport.use(
 	)
 );
 
-passport.serializeUser((user, cb) => cb(null, user));
+// Save session to cookie
+passport.serializeUser((user, cb) => cb(null, _.pick(user, ['id', 'username'])));
+// Load session from cookie
 passport.deserializeUser((obj, cb) => cb(null, obj));
 
 // Public API
