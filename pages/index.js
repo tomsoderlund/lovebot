@@ -44,7 +44,7 @@ class IndexPage extends React.Component {
 
 	constructor (props) {
 		super(props)
-		this.state = { gender: 'woman', users: props.users }
+		this.state = { gender: 'woman', users: props.users, currentUserOpen: null }
 	}
 
 /*
@@ -98,6 +98,10 @@ class IndexPage extends React.Component {
 		this.props.dispatch(reduxApi.actions.users.sync(query, callbackWhenDone));
 	}
 
+	handleClickUser (userId) {
+		this.setState({ currentUserOpen: userId });
+	}
+
 	render () {
 
 		const {users} = this.props;
@@ -108,6 +112,8 @@ class IndexPage extends React.Component {
 					index={index}
 					key={index}
 					inProgress={this.state.inProgress}
+					isOpen={this.state.currentUserOpen === user._id}
+					handleClick={this.handleClickUser.bind(this)}
 				/>)
 			: [];
 

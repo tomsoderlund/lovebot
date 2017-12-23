@@ -9,17 +9,19 @@ const getColorByDate = date => {
 	return newColor
 }
 
-const UserItem = ({user, index, inProgress, handleUpdate, handleDelete}) => (
+const UserItem = ({user, index, inProgress, isOpen, handleClick}) => (
 	<div
-		className={'userCard' + (inProgress === user._id ? ' inProgress' : '')}
+		className={'userCard' + (inProgress === user._id ? ' inProgress' : '') + (isOpen ? ' open' : '')}
 		style={{ backgroundColor: getColorByDate(user.dateUpdated) }}
+		onClick={handleClick.bind(undefined, user._id)}
 	>
-		<a href={ 'https://twitter.com/' + user.twitterHandle } target='_blank'>
-			<img className='portrait' src={user.imageUrl} alt={user.name} title={user.description} />
-			<h3 className='name'>{user.name}</h3>
-			<p className='twitterHandle'>@{user.twitterHandle}</p>
-			<p className='location'>{_.get(user,'locationDetails.city',_.get(user,'locationDetails.original',user.location))}</p>
-		</a>
+		
+		<img className='portrait' src={user.imageUrl} alt={user.name} title={user.description} />
+		<h3 className='name'>{user.name}</h3>
+		<p className='twitterHandle'><a href={ 'https://twitter.com/' + user.twitterHandle } target='_blank'>@{user.twitterHandle}</a></p>
+		<p className={'description collapsable ' + (isOpen ? 'open' : 'collapsed')}>{user.description}</p>
+		<p className='location'>{_.get(user,'locationDetails.city',_.get(user,'locationDetails.original',user.location))}</p>
+		
 		<button>I’m interested</button>
 
 		<style jsx>{`
@@ -41,6 +43,9 @@ const UserItem = ({user, index, inProgress, handleUpdate, handleDelete}) => (
 			.userCard:hover {
 				opacity: 0.8;
 			}
+			.userCard.open {
+				background-color: #fffcdc !important;
+			}
 			.userCard p {
 				font-size: 0.8em;
 				color: gray;
@@ -49,20 +54,16 @@ const UserItem = ({user, index, inProgress, handleUpdate, handleDelete}) => (
 			.userCard button {
 				margin: 0.5em 0;
 			}
-			.userCard > a {
+			.userCard a {
 				text-decoration: none;
 				color: inherit;
-				/* Flexbox: */
-				display: flex;
-				flex-direction: column;
-				justify-content: center;
-				align-items: center;
 			}
 			.portrait {
 				width: 6em;
 				height: 6em;
 				background: #eee;
 				border-radius: 50%;
+				border: 1px solid #d5d5d5;
 			}
 			.twitterHandle {
 			}

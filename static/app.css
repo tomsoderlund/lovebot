@@ -1,3 +1,11 @@
+/*
+
+yellow #fffcdc
+pink #d9a7c7, #ffdcf5
+purple #be59a0
+
+*/
+
 * {
 	box-sizing: border-box;
 	margin: 0;
@@ -29,7 +37,7 @@ h3 {
 
 /* Nice & simple: Button - http://codepen.io/tomsoderlund/pen/qqyzqp */
 button {
-	background-color: dodgerblue;
+	background-color: #be59a0;
 	border-radius: 0.2em;
 	border: none;
 	box-shadow: 0 0.125em 0.125em rgba(0,0,0, 0.3);
@@ -100,4 +108,14 @@ main {
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
+}
+
+/* Can grow/shrink vertically */
+.collapsable {
+	transition: all 0.5s;
+	max-height: 0;
+	overflow: hidden;
+}
+.collapsable.open {
+	max-height: 20em;
 }
