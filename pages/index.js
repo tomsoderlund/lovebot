@@ -9,6 +9,7 @@ import withRedux from 'next-redux-wrapper';
 import reduxApi from '../lib/reduxApi';
 
 import PageHead from '../components/PageHead';
+import MenuBar from '../components/MenuBar';
 import UserItem from '../components/UserItem';
 import LoadingSpinner from '../components/LoadingSpinner';
 
@@ -123,44 +124,48 @@ class IndexPage extends React.Component {
 				description='A love-finding Twitter bot'
 			/>
 
-			<a href='/login/twitter' className={this.props.loggedInUser ? 'hidden' : ''}>Login</a>
+			<MenuBar loggedInUser={this.props.loggedInUser}></MenuBar>
 
-			<div className='options'>
-				<select value={this.state.gender} onChange={this.handleFilterChange.bind(this, 'gender')} >
-					<option value="woman">Women</option>
-					<option value="man">Men</option>
-					<option value="other">Other</option>
-				</select>
-				<select value={this.state.city} onChange={this.handleFilterChange.bind(this, 'city')} >
-					<option value="all">All</option>
-					<option>Stockholm</option>
-				</select>
-			</div>
+			<main>
 
-			<LoadingSpinner hide={!this.state.inProgress}/>
+				<div className='options'>
+					<select value={this.state.gender} onChange={this.handleFilterChange.bind(this, 'gender')} >
+						<option value="woman">Women</option>
+						<option value="man">Men</option>
+						<option value="other">Other</option>
+					</select>
+					<select value={this.state.city} onChange={this.handleFilterChange.bind(this, 'city')} >
+						<option value="all">All</option>
+						<option>Stockholm</option>
+					</select>
+				</div>
 
-			<div className={'userList ' + (this.state.inProgress ? 'hidden' : '')}>
-				{userList}
-			</div>
+				<LoadingSpinner hide={!this.state.inProgress}/>
 
-			<style jsx>{`
-				div {
-					margin-top: 1em;
-				}
-				.userList {
-					display: flex;
-					flex-direction: row;
-					justify-content: center;
-					align-items: flex-start;
-					flex-wrap: wrap;						
-				}
-				.options {
-					display: flex;
-					flex-direction: row;
-					justify-content: space-around;
-					align-items: flex-start;
-				}
-			`}</style>
+				<div className={'userList ' + (this.state.inProgress ? 'hidden' : '')}>
+					{userList}
+				</div>
+				<style jsx>{`
+					div {
+						margin-top: 1em;
+					}
+					.userList {
+						display: flex;
+						flex-direction: row;
+						justify-content: center;
+						align-items: flex-start;
+						flex-wrap: wrap;						
+					}
+					.options {
+						display: flex;
+						flex-direction: row;
+						justify-content: space-around;
+						align-items: flex-start;
+						width: 95vmin;
+						//max-width: 15em;
+					}
+				`}</style>
+			</main>
 
 		</div>
 	};

@@ -32,7 +32,7 @@ const UserItem = ({user, index, inProgress, isOpen, handleClick}) => (
 				border-radius: 0.2em;
 				//border: 1px solid #e6e6e6;
 				box-shadow: 0 2px 2px rgba(0,0,0, 0.4);
-				width: 90vmin;
+				width: 95vmin;
 				max-width: 15em;
 				/* Flexbox: */
 				display: inline-flex;
