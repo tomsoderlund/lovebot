@@ -13,7 +13,7 @@ import MenuBar from '../components/MenuBar';
 import UserItem from '../components/UserItem';
 import LoadingSpinner from '../components/LoadingSpinner';
 
-class IndexPage extends React.Component {
+class FeedPage extends React.Component {
 
 	static propTypes = {
 
@@ -176,5 +176,5 @@ const createStoreWithThunkMiddleware = applyMiddleware(thunkMiddleware)(createSt
 const makeStore = (state, enhancer) => createStoreWithThunkMiddleware(combineReducers(reduxApi.reducers), state);
 const mapStateToProps = (state) => ({ users: state.users });
 
-const IndexPageConnected = withRedux({ createStore: makeStore, mapStateToProps })(IndexPage)
-export default IndexPageConnected;
+const FeedPageConnected = withRedux({ createStore: makeStore, mapStateToProps })(FeedPage)
+export default FeedPageConnected;
