@@ -16,7 +16,6 @@ class ProfilePage extends Component {
 
 	static async getInitialProps ({store, isServer, query, req}) {
 		// Get user
-		console.log(`passport.user`, _.get(req, 'session.passport.user'));
 		const loggedInUser = isServer ? _.get(req, 'session.passport.user') : _.get(window, '__NEXT_DATA__.props.initialProps.loggedInUser');
 		const profileUsername = query.username || loggedInUser.twitterHandle;
 		const oneUserByName = await store.dispatch(reduxApi.actions.oneUserByName({ username: profileUsername }));

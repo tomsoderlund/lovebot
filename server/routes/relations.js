@@ -14,6 +14,15 @@ const getRelationIds = function (req, res, next) {
 	});
 };
 
+const listRelations = (req, res, next) => {
+	const filter = { fromUser: req.query.fromUser };
+	const sort = { dateCreated: -1 };
+	Relation.find(filter).sort(sort).populate('toUser', '-_id -__v').exec((err, result) => {
+		req.crudify = { err, result, plans: result };
+		next();
+	});
+};
+
 module.exports = function (server) {
 
 	server.get('/api/relationIds/:userId', getRelationIds);
@@ -22,6 +31,10 @@ module.exports = function (server) {
 		'/api/relations',
 		mongooseCrudify({
 			Model: Relation,
+			actions: {
+				// override list
+				list: listRelations,
+			},
 			endResponseInAction: false,
 			afterActions: [
 				{ middlewares: [helpers.formatResponse] },

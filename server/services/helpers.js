@@ -24,6 +24,12 @@ module.exports.formatResponse = function (req, res, next) {
 	return res.json(req.crudify.err || (req.method === 'DELETE' ? req.params : req.crudify.result));
 };
 
+// E.g. populate user.account with full Account structure
+// helpers.populateProperties.bind(this, 'user', 'account')
+module.exports.populateProperties = function ({modelName, propertyName, afterPopulate}, req, res, next) {
+	req.crudify[modelName].populate(propertyName, '-_id -__v', next);
+};
+
 module.exports.convertTwitterUserToDbUser = twitterUser => {
 
 	const getBiggerImage = imgUrl => typeof(imgUrl) === 'string' ? imgUrl.replace('_normal', '_bigger') : imgUrl;
