@@ -27,17 +27,18 @@ class FeedPage extends React.Component {
 	};
 
 	static async getInitialProps ({store, isServer, pathname, query, req}) {
-		//console.log(`getInitialProps`, req.sessionID, _.get(req, 'session.passport.user.username'));
-		const loggedInUsername = isServer ? _.get(req, 'session.passport.user.username') : _.get(window, '__NEXT_DATA__.props.initialProps.loggedInUsername');
+		//console.log(`getInitialProps`, req.sessionID, _.get(req, 'session.passport.user.twitterHandle'));
+		const loggedInUser = isServer ? _.get(req, 'session.passport.user') : _.get(window, '__NEXT_DATA__.props.initialProps.loggedInUser');
 		// Get all Users
 		const gender = 'woman';
-		const users = await store.dispatch(reduxApi.actions.users.sync({ gender: gender }));
-		return { users, loggedInUsername };
+		const users = await store.dispatch(reduxApi.actions.users.sync({ gender }));
+		const relationIds = await store.dispatch(reduxApi.actions.relationIds({ userId: loggedInUser._id }));
+		return { users, loggedInUser };
 	}
 
 	constructor (props) {
 		super(props)
-		this.state = { gender: 'woman', users: props.users, currentUserOpen: null }
+		this.state = { gender: 'woman', users: props.users, relationIds: props.relationIds, loggedInUser: props.loggedInUser, currentUserOpen: null }
 	}
 
 	handleFilterChange (property, event) {
@@ -57,19 +58,32 @@ class FeedPage extends React.Component {
 		this.setState({ currentUserOpen: userId });
 	}
 
+	handleUserAction (user, type) {
+		const newRelation = {
+			fromUser: this.props.loggedInUser._id,
+			toUser: user._id,
+			type
+		};
+		const newRelationIds = [user._id, ...this.state.relationIds.data];
+		this.setState({ relationIds: { data: newRelationIds } });
+		this.props.dispatch(reduxApi.actions.relations.post({}, { body: JSON.stringify(newRelation) }));
+	}
+
 	render () {
 
 		const {users} = this.props;
 
 		const userList = users.data
-			? users.data.map((user, index) => <UserItem
+			? _(users.data).filter(user => !_.includes(this.state.relationIds.data, user._id)).map((user, index) => <UserItem
 					user={user}
 					index={index}
 					key={index}
 					inProgress={this.state.inProgress}
 					isOpen={this.state.currentUserOpen === user._id}
-					handleClick={this.handleClickUser.bind(this)}
-				/>)
+					onClick={this.handleClickUser.bind(this)}
+					onAction={this.handleUserAction.bind(this)}
+				/>
+			).value()
 			: [];
 
 		return <div>
@@ -78,7 +92,7 @@ class FeedPage extends React.Component {
 				description='A love-finding Twitter bot'
 			/>
 
-			<MenuBar loggedInUsername={this.props.loggedInUsername}></MenuBar>
+			<MenuBar loggedInUser={this.props.loggedInUser}></MenuBar>
 
 			<main>
 
@@ -128,7 +142,7 @@ class FeedPage extends React.Component {
 
 const createStoreWithThunkMiddleware = applyMiddleware(thunkMiddleware)(createStore);
 const makeStore = (state, enhancer) => createStoreWithThunkMiddleware(combineReducers(reduxApi.reducers), state);
-const mapStateToProps = (state) => ({ users: state.users });
+const mapStateToProps = (state) => ({ users: state.users, relationIds: state.relationIds }); // use endpoints from reduxApi here
 
 const FeedPageConnected = withRedux({ createStore: makeStore, mapStateToProps })(FeedPage)
 export default FeedPageConnected;

@@ -12,15 +12,12 @@ import PageHead from '../components/PageHead';
 import MenuBar from '../components/MenuBar';
 import UserItem from '../components/UserItem';
 
-class ProfilePage extends Component {
+class MatchesPage extends Component {
 
 	static async getInitialProps ({store, isServer, query, req}) {
 		// Get user
-		console.log(`passport.user`, _.get(req, 'session.passport.user'));
 		const loggedInUser = isServer ? _.get(req, 'session.passport.user') : _.get(window, '__NEXT_DATA__.props.initialProps.loggedInUser');
-		const profileUsername = query.username || loggedInUser.twitterHandle;
-		const oneUserByName = await store.dispatch(reduxApi.actions.oneUserByName({ username: profileUsername }));
-		return { oneUserByName, profileUsername, loggedInUser };
+		return { loggedInUser };
 	}
 
 	render() {
@@ -35,11 +32,7 @@ class ProfilePage extends Component {
 				<MenuBar loggedInUser={this.props.loggedInUser}></MenuBar>
 
 				<main>
-					<UserItem
-						user={this.props.oneUserByName.data}
-						isOpen={true}
-						hideActions={true}
-					/>
+					Matches
 				</main>
 
 			</div>
@@ -49,7 +42,7 @@ class ProfilePage extends Component {
 
 const createStoreWithThunkMiddleware = applyMiddleware(thunkMiddleware)(createStore);
 const makeStore = (state, enhancer) => createStoreWithThunkMiddleware(combineReducers(reduxApi.reducers), state);
-const mapStateToProps = (state) => ({ oneUserByName: state.oneUserByName });
+const mapStateToProps = (state) => ({ relations: state.relations });
 
-const ProfilePageConnected = withRedux({ createStore: makeStore, mapStateToProps })(ProfilePage)
-export default ProfilePageConnected;
+const MatchesPageConnected = withRedux({ createStore: makeStore, mapStateToProps })(MatchesPage)
+export default MatchesPageConnected;

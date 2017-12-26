@@ -1,6 +1,6 @@
-const IconButton = ({ label, icon }) => {
+const IconButton = ({ label, icon, onClick }) => {
 	return 	(
-		<button>
+		<button onClick={onClick}>
 			<i className={'far fa-' + icon}></i>
 			<div className='label'>{label}</div>
 			<style jsx>{`

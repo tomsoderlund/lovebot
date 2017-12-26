@@ -18,6 +18,12 @@ const nameLookup = require('./nameLookup');
 module.exports.applyToAll = (func, objectOrArray) => objectOrArray.constructor === Array ? _.map(objectOrArray, func) : func(objectOrArray);
 _.mixin({ 'applyToAll': module.exports.applyToAll });
 
+// Since DELETE doesn't return the _id of deleted item by default
+module.exports.formatResponse = function (req, res, next) {
+	if (req.crudify.err) console.error('formatResponse:', req.crudify.err);
+	return res.json(req.crudify.err || (req.method === 'DELETE' ? req.params : req.crudify.result));
+};
+
 module.exports.convertTwitterUserToDbUser = twitterUser => {
 
 	const getBiggerImage = imgUrl => typeof(imgUrl) === 'string' ? imgUrl.replace('_normal', '_bigger') : imgUrl;

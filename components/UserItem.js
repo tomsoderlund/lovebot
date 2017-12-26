@@ -11,11 +11,11 @@ const getColorByDate = date => {
 	return newColor
 }
 
-const UserItem = ({user, index, inProgress, isOpen, hideActions, handleClick}) => (
+const UserItem = ({user, index, inProgress, isOpen, hideActions, onClick, onAction}) => (
 	<div
 		className={'userCard' + (inProgress === user._id ? ' inProgress' : '') + (isOpen ? ' open' : '')}
 		style={{ backgroundColor: getColorByDate(user.dateUpdated) }}
-		onClick={handleClick ? handleClick.bind(undefined, user._id) : undefined}
+		onClick={onClick ? onClick.bind(undefined, user._id) : undefined}
 	>
 		
 		<img className='portrait' src={user.imageUrl} alt={user.name} title={user.description} />
@@ -25,9 +25,9 @@ const UserItem = ({user, index, inProgress, isOpen, hideActions, handleClick}) =
 		<p className='location'>{_.get(user,'locationDetails.city',_.get(user,'locationDetails.original',user.location))}</p>
 		
 		<nav className={hideActions ? 'hidden' : ''}>
-			<IconButton label='Ask out' icon='handshake' />
-			<IconButton label='Save' icon='star' />
-			<IconButton label='Pass' icon='thumbs-down' />
+			<IconButton label='Ask out' icon='handshake' onClick={onAction ? onAction.bind(undefined, user, 'askdate') : undefined} />
+			<IconButton label='Save' icon='star' onClick={onAction ? onAction.bind(undefined, user, 'favorite') : undefined} />
+			<IconButton label='Pass' icon='thumbs-down' onClick={onAction ? onAction.bind(undefined, user, 'no') : undefined} />
 		</nav>
 
 		<style jsx>{`

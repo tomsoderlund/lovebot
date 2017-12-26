@@ -61,11 +61,6 @@ const getOrFetchTwitterUser = function (req, res, next) {
 	});
 };
 
-// Since DELETE doesn't return the _id of deleted item by default
-const addIdToDeleteResults = function (req, res, next) {
-	return res.json(req.crudify.err || (req.method === 'DELETE' ? req.params : req.crudify.result));
-};
-
 module.exports = function (server) {
 
 	server.get('/api/usernames/:username', getOrFetchTwitterUser);
@@ -80,7 +75,7 @@ module.exports = function (server) {
 				list: searchUsers,
 			},
 			afterActions: [
-				{ middlewares: [addIdToDeleteResults] },
+				{ middlewares: [helpers.formatResponse] },
 			],
 		})
 	);

@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 
 var Schema = mongoose.Schema;
 
-var userSchema = new Schema({
+var UserSchema = new Schema({
 	dateCreated: { type: Date, default: Date.now },
 	dateUpdated: { type: Date },
 	name: { type: String },
@@ -22,4 +22,4 @@ var userSchema = new Schema({
 	gender: { type: String },
 });
 
-module.exports = mongoose.model('User', userSchema);
+module.exports = mongoose.model('User', UserSchema);
