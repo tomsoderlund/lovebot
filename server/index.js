@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const express = require('express');
 const server = express();
 const bodyParser = require('body-parser');
@@ -52,7 +53,9 @@ app.prepare().then(() => {
 
 	// Custom routes
 	server.get('/login/twitter', passport.authenticate('twitter'));
-	server.get('/login/twitter/return', passport.authenticate('twitter', { successRedirect: '/', failureRedirect: '/?loginFailed=true' }));
+	server.get('/login/twitter/return', passport.authenticate('twitter', { successRedirect: '/me', failureRedirect: '/?loginFailed=true' }));
+	server.get('/profile/:username', customRequestHandler.bind(undefined, '/profile'));
+	server.get('/me', customRequestHandler.bind(undefined, '/profile'));
 	server.get('/', customRequestHandler.bind(undefined, '/'));
 	server.get('*', defaultRequestHandler);
 

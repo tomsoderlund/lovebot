@@ -11,11 +11,11 @@ const getColorByDate = date => {
 	return newColor
 }
 
-const UserItem = ({user, index, inProgress, isOpen, handleClick}) => (
+const UserItem = ({user, index, inProgress, isOpen, hideActions, handleClick}) => (
 	<div
 		className={'userCard' + (inProgress === user._id ? ' inProgress' : '') + (isOpen ? ' open' : '')}
 		style={{ backgroundColor: getColorByDate(user.dateUpdated) }}
-		onClick={handleClick.bind(undefined, user._id)}
+		onClick={handleClick ? handleClick.bind(undefined, user._id) : undefined}
 	>
 		
 		<img className='portrait' src={user.imageUrl} alt={user.name} title={user.description} />
@@ -24,7 +24,7 @@ const UserItem = ({user, index, inProgress, isOpen, handleClick}) => (
 		<p className={'description collapsable ' + (isOpen ? 'open' : 'collapsed')}>{user.description}</p>
 		<p className='location'>{_.get(user,'locationDetails.city',_.get(user,'locationDetails.original',user.location))}</p>
 		
-		<nav>
+		<nav className={hideActions ? 'hidden' : ''}>
 			<IconButton label='Ask out' icon='handshake' />
 			<IconButton label='Save' icon='star' />
 			<IconButton label='Pass' icon='thumbs-down' />

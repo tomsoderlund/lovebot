@@ -7,10 +7,10 @@ export default class MenuBar extends Component {
 	render() {
 		return (
 			<nav>
-				<a href='/login/twitter' className={this.props.loggedInUser ? 'hidden' : ''}>Login</a>
-				<Link href='/editprofile' as='/me'><a className={!this.props.loggedInUser ? 'hidden' : ''}>Me</a></Link>
-				<h2>Lovebot</h2>
-				<Link href='/matches' as='/matches'><a>My matches</a></Link>
+				<a href='/login/twitter' className={this.props.loggedInUsername ? 'hidden' : ''}>Login</a>
+				<Link href='/profile' as='/me'><a className={!this.props.loggedInUsername ? 'hidden' : ''}>Me</a></Link>
+				<Link href='/feed' as='/feed'><a><h2>Lovebot</h2></a></Link>
+				<Link href='/profile?username=BonnieFRobinson' as='/profile/BonnieFRobinson'><a>My matches</a></Link>
 				<style jsx>{`
 					nav {
 						display: flex;

@@ -17,13 +17,6 @@ class FeedPage extends React.Component {
 
 	static propTypes = {
 
-		// oneUser: PropTypes.shape({
-		// 	loading: PropTypes.bool.isRequired,
-		// 	data: PropTypes.shape({
-		// 		text: PropTypes.string
-		// 	}).isRequired
-		// }).isRequired,
-
 		users: PropTypes.shape({
 			loading: PropTypes.bool.isRequired,
 			data: PropTypes.array.isRequired
@@ -35,12 +28,11 @@ class FeedPage extends React.Component {
 
 	static async getInitialProps ({store, isServer, pathname, query, req}) {
 		//console.log(`getInitialProps`, req.sessionID, _.get(req, 'session.passport.user.username'));
-		const { dispatch } = store;
-		const loggedInUser = _.get(req, 'session.passport.user.username');
+		const loggedInUsername = isServer ? _.get(req, 'session.passport.user.username') : _.get(window, '__NEXT_DATA__.props.initialProps.loggedInUsername');
 		// Get all Users
 		const gender = 'woman';
-		const users = await dispatch(reduxApi.actions.users.sync({ gender: gender }));
-		return { users, loggedInUser };
+		const users = await store.dispatch(reduxApi.actions.users.sync({ gender: gender }));
+		return { users, loggedInUsername };
 	}
 
 	constructor (props) {
@@ -48,44 +40,6 @@ class FeedPage extends React.Component {
 		this.state = { gender: 'woman', users: props.users, currentUserOpen: null }
 	}
 
-/*
-	handleChange (event) {
-		this.setState({ twitterHandle: event.target.value });
-	}
-
-	handleAdd (event) {
-		// Progress indicator
-		this.setState({ inProgress: true });
-		const callbackWhenDone = () => this.setState({ twitterHandle: '', inProgress: null });
-
-		// Actual data request
-		const newUser = {
-			twitterHandle: this.state.twitterHandle,
-		};
-		this.props.dispatch(reduxApi.actions.users.post({}, { body: JSON.stringify(newUser) }, callbackWhenDone));
-	}
-
-	handleUpdate (index, userId, event) {
-		// Progress indicator
-		this.setState({ inProgress: userId });
-		const callbackWhenDone = () => this.setState({ inProgress: null });
-
-		// Actual data request
-		const newUser = {
-			twitterHandle: prompt('New twitterHandle?'),
-		};
-		this.props.dispatch(reduxApi.actions.users.put({ id: userId }, { body: JSON.stringify(newUser) }, callbackWhenDone));
-	}
-
-	handleDelete (index, userId, event) {
-		// Progress indicator
-		this.setState({ inProgress: userId });
-		const callbackWhenDone = () => this.setState({ inProgress: null });
-
-		// Actual data request
-		this.props.dispatch(reduxApi.actions.users.delete({ id: userId }, callbackWhenDone));
-	}
-*/
 	handleFilterChange (property, event) {
 		// Progress indicator
 		let newFilter = _.merge({}, this.state);
@@ -124,7 +78,7 @@ class FeedPage extends React.Component {
 				description='A love-finding Twitter bot'
 			/>
 
-			<MenuBar loggedInUser={this.props.loggedInUser}></MenuBar>
+			<MenuBar loggedInUsername={this.props.loggedInUsername}></MenuBar>
 
 			<main>
 
