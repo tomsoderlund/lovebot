@@ -27,13 +27,13 @@ class FeedPage extends React.Component {
 	};
 
 	static async getInitialProps ({store, isServer, pathname, query, req}) {
-		//console.log(`getInitialProps`, req.sessionID, _.get(req, 'session.passport.user.twitterHandle'));
 		const loggedInUser = isServer ? _.get(req, 'session.passport.user') : _.get(window, '__NEXT_DATA__.props.initialProps.loggedInUser');
+		//console.log(`getInitialProps`, loggedInUser);
 		// Get all Users
 		const gender = 'woman';
 		const users = await store.dispatch(reduxApi.actions.users.sync({ gender }));
-		const relationIds = await store.dispatch(reduxApi.actions.relationIds({ userId: loggedInUser._id }));
-		return { users, loggedInUser };
+		const relationIds = await store.dispatch(reduxApi.actions.relationIds({ userId: _.get(loggedInUser, '_id') }));
+		return { users, loggedInUser, relationIds };
 	}
 
 	constructor (props) {
@@ -81,6 +81,7 @@ class FeedPage extends React.Component {
 					inProgress={this.state.inProgress}
 					isOpen={this.state.currentUserOpen === user._id}
 					onClick={this.handleClickUser.bind(this)}
+					hideActions={!this.props.loggedInUser}
 					onAction={this.handleUserAction.bind(this)}
 				/>
 			).value()

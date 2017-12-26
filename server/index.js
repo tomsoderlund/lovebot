@@ -54,6 +54,7 @@ app.prepare().then(() => {
 	// Custom routes
 	server.get('/login/twitter', passport.authenticate('twitter'));
 	server.get('/login/twitter/return', passport.authenticate('twitter', { successRedirect: '/me', failureRedirect: '/?loginFailed=true' }));
+	server.get('/logout', passport.logoutAndRedirect);
 	server.get('/profile/:username', customRequestHandler.bind(undefined, '/profile'));
 	server.get('/me', customRequestHandler.bind(undefined, '/profile'));
 	server.get('/', customRequestHandler.bind(undefined, '/'));

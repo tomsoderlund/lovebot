@@ -47,6 +47,12 @@ passport.serializeUser((user, cb) => {
 // Load session from cookie
 passport.deserializeUser((obj, cb) => cb(null, obj));
 
+// Logout
+passport.logoutAndRedirect = function (req, res) {
+	req.logout();
+	res.redirect('/feed');
+};
+
 // Public API
 
 module.exports = passport;
