@@ -9,28 +9,10 @@ const nameLookup = require('../services/nameLookup');
 const database = require('../services/database');
 const User = require('../models/user');
 
-const convertTwitterUserToDbUser = twitterUser => {
-
-	const getBiggerImage = imgUrl => typeof(imgUrl) === 'string' ? imgUrl.replace('_normal', '_bigger') : imgUrl;
-
-	const dbUser = _.merge(
-		{},
-		_.pick(twitterUser, ['name', 'description']),
-		nameLookup.lookup(twitterUser.name),
-		{
-			twitterHandle: twitterUser.screen_name,
-			websiteUrl: _.get(twitterUser, 'entities.url.urls.0.expanded_url', twitterUser.url),
-			imageUrl: getBiggerImage(twitterUser.profile_image_url_https),
-			locationDetails: { original: twitterUser.location },
-			dateUpdated: new Date(),
-		}
-	);
-	return dbUser;
-}
 
 const saveTwitterUser = function (twitterUser, cb) {
 
-	const newUserData = convertTwitterUserToDbUser(twitterUser);
+	const newUserData = helpers.convertTwitterUserToDbUser(twitterUser);
 	User.findOne({ twitterHandle: twitterUser.screen_name }, (err, foundUser) => {
 		if (foundUser) {
 			// Update existing
