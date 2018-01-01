@@ -43,7 +43,7 @@ class MatchesPage extends Component {
 		const relationsAskDate = this.props.relations.data
 			? _(this.props.relations.data).filter(relation => relation.type === 'askdate').map((relation, index) => <UserCard
 					user={relation.toUser}
-					key={relation.toUser._id}
+					key={relation._id}
 					isOpen={this.state.currentUserOpen === relation.toUser._id}
 					onClick={this.handleClickUser.bind(this)}
 					onAction={this.handleUserAction.bind(this)}
@@ -54,7 +54,7 @@ class MatchesPage extends Component {
 		const relationsSaved = this.props.relations.data
 			? _(this.props.relations.data).filter(relation => relation.type === 'favorite').map((relation, index) => <UserCard
 					user={relation.toUser}
-					key={relation.toUser._id}
+					key={relation._id}
 					isOpen={this.state.currentUserOpen === relation.toUser._id}
 					onClick={this.handleClickUser.bind(this)}
 					onAction={this.handleUserAction.bind(this)}
@@ -63,7 +63,10 @@ class MatchesPage extends Component {
 			: [];
 
 		const relationsNo = this.props.relations.data
-			? _(this.props.relations.data).filter(relation => relation.type === 'no').map((relation, index) => <Link href={`/profile?username=${relation.toUser.twitterHandle}`} as={`/profile/${relation.toUser.twitterHandle}`}>
+			? _(this.props.relations.data).filter(relation => relation.type === 'no').map((relation, index) => <Link
+					key={relation._id}
+					href={`/profile?username=${relation.toUser.twitterHandle}`}
+					as={`/profile/${relation.toUser.twitterHandle}`}>
 					<a>{relation.toUser.name} (@{relation.toUser.twitterHandle})</a>
 				</Link>
 			).value()
