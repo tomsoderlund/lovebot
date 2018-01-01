@@ -18,8 +18,9 @@ class ProfilePage extends Component {
 		// Get user
 		const loggedInUser = isServer ? _.get(req, 'session.passport.user') : _.get(window, '__NEXT_DATA__.props.initialProps.loggedInUser');
 		const profileUsername = query.username || loggedInUser.twitterHandle;
+		const isMe = profileUsername === loggedInUser.twitterHandle;
 		const oneUserByName = await store.dispatch(reduxApi.actions.oneUserByName({ username: profileUsername }));
-		return { oneUserByName, profileUsername, loggedInUser };
+		return { oneUserByName, profileUsername, loggedInUser, isMe };
 	}
 
 	render() {
@@ -39,6 +40,8 @@ class ProfilePage extends Component {
 						isOpen={true}
 						hideActions={true}
 					/>
+
+					<a href='/logout' className={this.props.isMe ? '' : 'hidden'}>Log out</a>
 				</main>
 
 			</div>
