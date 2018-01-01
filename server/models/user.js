@@ -20,6 +20,7 @@ var UserSchema = new Schema({
 	imageUrl: { type: String },
 	isPerson: { type: Boolean },
 	gender: { type: String },
+	isAdmin: { type: Boolean, default: false },
 });
 
 module.exports = mongoose.model('User', UserSchema);

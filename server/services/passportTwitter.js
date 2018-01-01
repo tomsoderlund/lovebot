@@ -40,7 +40,7 @@ passport.serializeUser((user, cb) => {
 	fetch(`${API_URL}/api/usernames/${user.username}`)
 		.then(res => res.json())
 		.then(dbUser => {
-			cb(null, _.pick(dbUser, ['_id', 'twitterHandle']))
+			cb(null, _.pick(dbUser, ['_id', 'twitterHandle', 'isAdmin']))
 		})
 		.catch(cb);
 });

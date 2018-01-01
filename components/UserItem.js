@@ -11,7 +11,7 @@ const getColorByDate = date => {
 	return newColor
 }
 
-const UserItem = ({user, inProgress=false, isOpen=false, hideActions, onClick, onAction}) => (
+const UserItem = ({user, inProgress=false, isOpen=false, hideActions, isAdmin, onClick, onAction}) => (
 	<div
 		className={'userCard' + (inProgress === user._id ? ' inProgress' : '') + (isOpen ? ' open' : '')}
 		style={{ backgroundColor: getColorByDate(user.dateUpdated) }}
@@ -28,6 +28,9 @@ const UserItem = ({user, inProgress=false, isOpen=false, hideActions, onClick, o
 			<IconButton label='Ask out' icon='handshake' onClick={onAction ? onAction.bind(undefined, user, 'askdate') : undefined} />
 			<IconButton label='Save' icon='star' onClick={onAction ? onAction.bind(undefined, user, 'favorite') : undefined} />
 			<IconButton label='Pass' icon='thumbs-down' onClick={onAction ? onAction.bind(undefined, user, 'no') : undefined} />
+		</nav>
+		<nav className={hideActions && isAdmin ? 'hidden' : ''}>
+			<p>Source: {user.source}</p>
 		</nav>
 
 		<style jsx>{`
@@ -74,7 +77,7 @@ const UserItem = ({user, inProgress=false, isOpen=false, hideActions, onClick, o
 				opacity: 0.3;
 			}
 			nav {
-				background-color: rgba(0,0,0, 0.5);
+				background-color: rgba(0,0,0, 0.2);
 				width: 95vmin;
 				max-width: 15em;
 				margin-top: 1em;

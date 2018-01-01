@@ -83,6 +83,7 @@ class FeedPage extends React.Component {
 					onClick={this.handleClickUser.bind(this)}
 					hideActions={!this.props.loggedInUser}
 					onAction={this.handleUserAction.bind(this)}
+					isAdmin={this.props.loggedInUser.isAdmin}
 				/>
 			).value()
 			: [];
