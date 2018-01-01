@@ -20,6 +20,8 @@ var UserSchema = new Schema({
 	imageUrl: { type: String },
 	isPerson: { type: Boolean },
 	gender: { type: String },
+	showInSearch: { type: Boolean, default: true },
+	source: { type: String }, // how it entered the system
 	isAdmin: { type: Boolean, default: false },
 });
 

@@ -10,21 +10,23 @@ const database = require('../services/database');
 const User = require('../models/user');
 
 
-const saveTwitterUser = function (twitterUser, cb) {
+const saveTwitterUser = function (source, twitterUser, cb) {
 
-	const newUserData = helpers.convertTwitterUserToDbUser(twitterUser);
+	const newUserData = _.merge({}, helpers.convertTwitterUserToDbUser(twitterUser), { source });
 	User.findOne({ twitterHandle: twitterUser.screen_name }, (err, foundUser) => {
 		if (foundUser) {
 			// Update existing
 			foundUser.description = foundUser.description || newUserData.description;
 			foundUser.imageUrl = foundUser.imageUrl || newUserData.imageUrl;
 			foundUser.locationDetails = _.has(foundUser, 'locationDetails.original') ? foundUser.locationDetails : newUserData.locationDetails;
+			foundUser.source = foundUser.source || newUserData.source;
+			foundUser.showInSearch = true;
 			if (_.isEmpty(foundUser.websiteUrl) || _.includes(foundUser.websiteUrl, 't.co')) foundUser.websiteUrl = newUserData.websiteUrl;
 			foundUser.save(cb);
 		}
 		else {
 			// Create new
-			console.log(`New user: ${twitterUser.screen_name}`);
+			console.log(`New user: ${twitterUser.screen_name} (${source})`);
 			User.create(newUserData, (err, newUser) => {
 				updateUserTwitterDetails(newUser, cb);
 			});
@@ -37,14 +39,16 @@ const findUsersInTweets = function (tweets, cb) {
 		cb();
 	}
 	else {
-		const userArray = _(tweets).map(tweet => {
-			// Tweeting user + users being mentioned
-			return _.isEmpty(tweet) ? [] : [_.get(tweet, 'user'), ..._.get(tweet, 'entities.user_mentions')];
-		}).flatten().uniq().compact().value();
-		console.log('findUsersInTweets', userArray.length);
+		// Tweeting user
+		const tweetingUserArray = _(tweets).map(tweet => _.isEmpty(tweet) ? [] : [_.get(tweet, 'user')]).flatten().uniq().compact().value();
+		// Users being mentioned
+		const mentionedUserArray = _(tweets).map(tweet => _.isEmpty(tweet) ? [] : [..._.get(tweet, 'entities.user_mentions')]).flatten().uniq().compact().value();
+		console.log(`findUsersInTweets: ${tweetingUserArray.length} + ${mentionedUserArray.length}`);
 		async.series([
-			async.each.bind(undefined, userArray, saveTwitterUser),
-			async.each.bind(undefined, userArray, addUserFriends), // addUserFollowers
+			async.each.bind(undefined, tweetingUserArray, saveTwitterUser.bind(undefined, 'tweeted')),
+			async.each.bind(undefined, mentionedUserArray, saveTwitterUser.bind(undefined, 'mentioned')),
+			async.each.bind(undefined, tweetingUserArray, addUserFriends), // people that tweetingUser follows
+			//async.each.bind(undefined, tweetingUserArray, addUserFollowers), // people following tweetingUser
 		],
 		cb);
 	}
@@ -55,7 +59,7 @@ const addUserFollowers = function (twitterUser, cb) {
 	twitHelper.getFollowers(twitterUser.screen_name, {}, (err, users) => {
 		!!err
 			? cb()
-			: async.each(users, saveTwitterUser, cb);
+			: async.each(users, saveTwitterUser.bind(undefined, 'follower'), cb);
 	});
 }
 
@@ -64,7 +68,7 @@ const addUserFriends = function (twitterUser, cb) {
 	twitHelper.getFriends(twitterUser.screen_name, {}, (err, users) => {
 		!!err
 			? cb()
-			: async.each(users, saveTwitterUser, cb);
+			: async.each(users, saveTwitterUser.bind(undefined, 'friend'), cb);
 	});
 }
 
@@ -82,7 +86,7 @@ const updateUserTwitterDetails = function (dbUser, cb) {
 		twitHelper.getUser(dbUser.twitterHandle, (err, twitterUser) => {
 			if (twitterUser) {
 				async.series([
-					saveTwitterUser.bind(undefined, twitterUser),
+					saveTwitterUser.bind(undefined, 'user_search', twitterUser),
 					// Scan their last tweet too
 					//findUsersInTweets.bind(undefined, [twitterUser.status]),
 				],
