@@ -59,6 +59,13 @@ class FeedPage extends React.Component {
 	}
 
 	handleUserAction (type, user, option) {
+
+		const createName = (fullname, userProps) => {
+			const firstName = fullname.substring(0, fullname.indexOf(' ')).toLowerCase();
+			const newNameProps = _.merge({}, userProps, { name: firstName });
+			this.props.dispatch(reduxApi.actions.names.post({}, { body: JSON.stringify(newNameProps) }));
+		};
+
 		if (type === 'changegender') {
 			const newUserProps = {
 				gender: option === 'other' ? null : option,
@@ -66,6 +73,7 @@ class FeedPage extends React.Component {
 			};
 			const newUser = _.merge({}, user, newUserProps);
 			this.props.dispatch(reduxApi.actions.users.put({ id: user._id }, { body: JSON.stringify(newUserProps) }));
+			if (option !== 'other') createName(user.name, newUserProps);
 			// TODO: update local state, too
 		}
 		else {
