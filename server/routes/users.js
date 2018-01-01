@@ -1,5 +1,6 @@
 'use strict';
 
+const _ = require('lodash');
 const mongooseCrudify = require('mongoose-crudify');
 
 const helpers = require('../services/helpers');
@@ -20,8 +21,10 @@ const searchUsers = function (req, res, next) {
 	}
 	// City
 	if (req.query.city && req.query.city !== 'all') {
-		//filter.locationDetails = { city: req.query.city };
-		filter['locationDetails.original'] = new RegExp(req.query.city, 'ig');
+		// Handle multiple with / e.g. Sweden/Sverige
+		filter['locationDetails.original'] = _.includes(req.query.city, '/')
+			? { $or: req.query.city.split('/').map(str => new RegExp(str, 'ig')) }
+			: new RegExp(req.query.city, 'ig');
 	}
 	const sort = '-dateCreated';
 	const limit = 100;
