@@ -2,6 +2,7 @@ import _ from 'lodash';
 import tinycolor from 'tinycolor2';
 
 import IconButton from './IconButton'
+import MultiSelect from './MultiSelect'
 
 const getColorByDate = date => {
 	const ageInMinutes = (new Date() - new Date(date)) / (1000 * 60);
@@ -25,12 +26,13 @@ const UserCard = ({user, inProgress=false, isOpen=false, hideActions, isAdmin, o
 		<p className='location'>{_.get(user,'locationDetails.city',_.get(user,'locationDetails.original',user.location))}</p>
 		
 		<nav className={hideActions ? 'hidden' : ''}>
-			<IconButton label='Ask out' icon='handshake' onClick={onAction ? onAction.bind(undefined, user, 'askdate') : undefined} />
-			<IconButton label='Save' icon='star' onClick={onAction ? onAction.bind(undefined, user, 'favorite') : undefined} />
-			<IconButton label='Pass' icon='thumbs-down' onClick={onAction ? onAction.bind(undefined, user, 'no') : undefined} />
+			<IconButton label='Ask out' icon='handshake' onClick={onAction ? onAction.bind(undefined, 'askdate', user) : undefined} />
+			<IconButton label='Save' icon='star' onClick={onAction ? onAction.bind(undefined, 'favorite', user) : undefined} />
+			<IconButton label='Pass' icon='thumbs-down' onClick={onAction ? onAction.bind(undefined, 'no', user) : undefined} />
 		</nav>
-		<nav className={hideActions && isAdmin ? 'hidden' : ''}>
-			<p>Source: {user.source}</p>
+		<nav className={!hideActions && isAdmin && isOpen ? 'admin' : 'hidden'}>
+			<div>Source: {user.source}</div>
+			<div>Gender: <MultiSelect options={['woman', 'man', 'other']} value={user.gender} onClick={onAction ? onAction.bind(this, 'changegender', user) : undefined}/></div>
 		</nav>
 
 		<style jsx>{`
@@ -86,6 +88,12 @@ const UserCard = ({user, inProgress=false, isOpen=false, hideActions, isAdmin, o
 				flex-direction: row;
 				justify-content: center;
 				align-items: center;
+			}
+			nav.admin {
+				flex-direction: column;
+			}
+			nav.admin > * {
+				font-size: 0.8em;
 			}
 		`}</style>
 	</div>

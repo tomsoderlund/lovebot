@@ -119,3 +119,9 @@ main {
 .collapsable.open {
 	max-height: 20em;
 }
+
+.multi-select {
+}
+.multi-select .selected {
+	background-color: limegreen;
+}

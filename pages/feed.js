@@ -58,15 +58,27 @@ class FeedPage extends React.Component {
 		this.setState({ currentUserOpen: userId });
 	}
 
-	handleUserAction (user, type) {
-		const newRelation = {
-			fromUser: this.props.loggedInUser._id,
-			toUser: user._id,
-			type
-		};
-		const newRelationIds = [user._id, ...this.state.relationIds.data];
-		this.setState({ relationIds: { data: newRelationIds } });
-		this.props.dispatch(reduxApi.actions.relations.post({}, { body: JSON.stringify(newRelation) }));
+	handleUserAction (type, user, option) {
+		if (type === 'changegender') {
+			const newUserProps = {
+				gender: option === 'other' ? null : option,
+				isPerson: option === 'other' ? false : true,
+			};
+			const newUser = _.merge({}, user, newUserProps);
+			this.props.dispatch(reduxApi.actions.users.put({ id: user._id }, { body: JSON.stringify(newUserProps) }));
+			// TODO: update local state, too
+		}
+		else {
+			// Relation
+			const newRelation = {
+				fromUser: this.props.loggedInUser._id,
+				toUser: user._id,
+				type
+			};
+			const newRelationIds = [user._id, ...this.state.relationIds.data];
+			this.setState({ relationIds: { data: newRelationIds } });
+			this.props.dispatch(reduxApi.actions.relations.post({}, { body: JSON.stringify(newRelation) }));
+		}
 	}
 
 	render () {
@@ -83,7 +95,7 @@ class FeedPage extends React.Component {
 					onClick={this.handleClickUser.bind(this)}
 					hideActions={!this.props.loggedInUser}
 					onAction={this.handleUserAction.bind(this)}
-					isAdmin={this.props.loggedInUser.isAdmin}
+					isAdmin={_.get(this.props, 'loggedInUser.isAdmin')}
 				/>
 			).value()
 			: [];
