@@ -27,14 +27,14 @@ class FeedPage extends React.Component {
 	};
 
 	static async getInitialProps ({store, isServer, pathname, query, req}) {
-		const loggedInUserFromSession = isServer ? _.get(req, 'session.passport.user') : _.get(window, '__NEXT_DATA__.props.initialProps.loggedInUserFromSession');
-		//console.log(`getInitialProps`, loggedInUserFromSession);
+		const loggedInUser = isServer ? _.get(req, 'session.passport.user') : _.get(window, '__NEXT_DATA__.props.initialProps.loggedInUser');
+		//console.log(`getInitialProps`, loggedInUser);
 		// Get all Users
 		const gender = 'woman';
 		const users = await store.dispatch(reduxApi.actions.users.sync({ gender }));
-		const relationIds = await store.dispatch(reduxApi.actions.relationIds({ userId: _.get(loggedInUserFromSession, '_id') }));
-		const loggedInUser = await store.dispatch(reduxApi.actions.oneUserByName({ username: _.get(loggedInUserFromSession, 'twitterHandle') }));
-		return { users, loggedInUser, relationIds };
+		const relationIds = await store.dispatch(reduxApi.actions.relationIds({ userId: _.get(loggedInUser, '_id') }));
+		const loggedInUserObject = _.has(loggedInUser, 'twitterHandle') ? await store.dispatch(reduxApi.actions.oneUserByName({ username: _.get(loggedInUser, 'twitterHandle') })) : undefined;
+		return { users, loggedInUser, loggedInUserObject, relationIds };
 	}
 
 	constructor (props) {
@@ -91,7 +91,6 @@ class FeedPage extends React.Component {
 	}
 
 	render () {
-
 		const {users} = this.props;
 
 		const userList = users.data
@@ -104,7 +103,7 @@ class FeedPage extends React.Component {
 					onClick={this.handleClickUser.bind(this)}
 					hideActions={!this.props.loggedInUser}
 					onAction={this.handleUserAction.bind(this)}
-					isAdmin={_.get(this.props, 'loggedInUser.isAdmin')}
+					isAdmin={_.get(this.props, 'loggedInUserObject.data.isAdmin')}
 				/>
 			).value()
 			: [];
@@ -169,7 +168,7 @@ class FeedPage extends React.Component {
 
 const createStoreWithThunkMiddleware = applyMiddleware(thunkMiddleware)(createStore);
 const makeStore = (state, enhancer) => createStoreWithThunkMiddleware(combineReducers(reduxApi.reducers), state);
-const mapStateToProps = (state) => ({ users: state.users, relationIds: state.relationIds }); // use endpoints from reduxApi here
+const mapStateToProps = (state) => ({ users: state.users, relationIds: state.relationIds, loggedInUserObject: state.oneUserByName }); // use endpoints from reduxApi here
 
 const FeedPageConnected = withRedux({ createStore: makeStore, mapStateToProps })(FeedPage)
 export default FeedPageConnected;
