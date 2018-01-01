@@ -27,12 +27,13 @@ class FeedPage extends React.Component {
 	};
 
 	static async getInitialProps ({store, isServer, pathname, query, req}) {
-		const loggedInUser = isServer ? _.get(req, 'session.passport.user') : _.get(window, '__NEXT_DATA__.props.initialProps.loggedInUser');
-		//console.log(`getInitialProps`, loggedInUser);
+		const loggedInUserFromSession = isServer ? _.get(req, 'session.passport.user') : _.get(window, '__NEXT_DATA__.props.initialProps.loggedInUserFromSession');
+		//console.log(`getInitialProps`, loggedInUserFromSession);
 		// Get all Users
 		const gender = 'woman';
 		const users = await store.dispatch(reduxApi.actions.users.sync({ gender }));
-		const relationIds = await store.dispatch(reduxApi.actions.relationIds({ userId: _.get(loggedInUser, '_id') }));
+		const relationIds = await store.dispatch(reduxApi.actions.relationIds({ userId: _.get(loggedInUserFromSession, '_id') }));
+		const loggedInUser = await store.dispatch(reduxApi.actions.oneUserByName({ username: _.get(loggedInUserFromSession, 'twitterHandle') }));
 		return { users, loggedInUser, relationIds };
 	}
 
