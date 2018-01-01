@@ -127,6 +127,10 @@ class FeedPage extends React.Component {
 					<select value={this.state.city} onChange={this.handleFilterChange.bind(this, 'city')} >
 						<option value="all">All</option>
 						<option>Stockholm</option>
+						<option>Göteborg</option>
+						<option>Malmö</option>
+						<option>New York</option>
+						<option>San Francisco</option>
 					</select>
 				</div>
 

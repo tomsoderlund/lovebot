@@ -20,12 +20,13 @@ const searchUsers = function (req, res, next) {
 	}
 	// City
 	if (req.query.city) {
-		filter.locationDetails = { city: req.query.city };
+		//filter.locationDetails = { city: req.query.city };
+		filter.locationDetails = { original: new RegExp(req.query.city, 'i') };
 		if (req.query.city === 'all') filter.locationDetails = null;
 	}
 	const sort = '-dateCreated';
 	const limit = 100;
-	console.log(`filter: ${filter}`, filter);
+	console.log(`searchUsers:`, filter);
 	User.find(filter).sort(sort).limit(limit).exec((err, result) => {
 		req.crudify = { err, result };
 		next(err);
