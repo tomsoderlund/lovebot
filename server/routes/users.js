@@ -19,10 +19,9 @@ const searchUsers = function (req, res, next) {
 		if (req.query.gender === 'other') filter.gender = null;
 	}
 	// City
-	if (req.query.city) {
+	if (req.query.city && req.query.city !== 'all') {
 		//filter.locationDetails = { city: req.query.city };
-		filter.locationDetails = { original: new RegExp(req.query.city, 'i') };
-		if (req.query.city === 'all') filter.locationDetails = null;
+		filter['locationDetails.original'] = new RegExp(req.query.city, 'ig');
 	}
 	const sort = '-dateCreated';
 	const limit = 100;
