@@ -10,7 +10,7 @@ import reduxApi from '../lib/reduxApi';
 
 import PageHead from '../components/PageHead';
 import MenuBar from '../components/MenuBar';
-import UserItem from '../components/UserItem';
+import UserCard from '../components/UserCard';
 
 class ProfilePage extends Component {
 
@@ -34,7 +34,7 @@ class ProfilePage extends Component {
 				<MenuBar loggedInUser={this.props.loggedInUser}></MenuBar>
 
 				<main>
-					<UserItem
+					<UserCard
 						user={this.props.oneUserByName.data}
 						isOpen={true}
 						hideActions={true}

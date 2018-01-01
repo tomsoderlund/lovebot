@@ -10,7 +10,7 @@ import reduxApi from '../lib/reduxApi';
 
 import PageHead from '../components/PageHead';
 import MenuBar from '../components/MenuBar';
-import UserItem from '../components/UserItem';
+import UserCard from '../components/UserCard';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 class FeedPage extends React.Component {
@@ -74,7 +74,7 @@ class FeedPage extends React.Component {
 		const {users} = this.props;
 
 		const userList = users.data
-			? _(users.data).filter(user => !_.includes(this.state.relationIds.data, user._id)).map((user, index) => <UserItem
+			? _(users.data).filter(user => !_.includes(this.state.relationIds.data, user._id)).map((user, index) => <UserCard
 					user={user}
 					index={index}
 					key={index}

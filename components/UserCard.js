@@ -11,7 +11,7 @@ const getColorByDate = date => {
 	return newColor
 }
 
-const UserItem = ({user, inProgress=false, isOpen=false, hideActions, isAdmin, onClick, onAction}) => (
+const UserCard = ({user, inProgress=false, isOpen=false, hideActions, isAdmin, onClick, onAction}) => (
 	<div
 		className={'userCard' + (inProgress === user._id ? ' inProgress' : '') + (isOpen ? ' open' : '')}
 		style={{ backgroundColor: getColorByDate(user.dateUpdated) }}
@@ -90,4 +90,4 @@ const UserItem = ({user, inProgress=false, isOpen=false, hideActions, isAdmin, o
 		`}</style>
 	</div>
 );
-export default UserItem;
+export default UserCard;

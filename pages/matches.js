@@ -12,7 +12,7 @@ import Link from 'next/link'
 
 import PageHead from '../components/PageHead';
 import MenuBar from '../components/MenuBar';
-import UserItem from '../components/UserItem';
+import UserCard from '../components/UserCard';
 
 class MatchesPage extends Component {
 
@@ -41,7 +41,7 @@ class MatchesPage extends Component {
 		console.log(`relations`, this.props);
 
 		const relationsAskDate = this.props.relations.data
-			? _(this.props.relations.data).filter(relation => relation.type === 'askdate').map((relation, index) => <UserItem
+			? _(this.props.relations.data).filter(relation => relation.type === 'askdate').map((relation, index) => <UserCard
 					user={relation.toUser}
 					key={relation.toUser._id}
 					isOpen={this.state.currentUserOpen === relation.toUser._id}
@@ -52,7 +52,7 @@ class MatchesPage extends Component {
 			: [];
 
 		const relationsSaved = this.props.relations.data
-			? _(this.props.relations.data).filter(relation => relation.type === 'favorite').map((relation, index) => <UserItem
+			? _(this.props.relations.data).filter(relation => relation.type === 'favorite').map((relation, index) => <UserCard
 					user={relation.toUser}
 					key={relation.toUser._id}
 					isOpen={this.state.currentUserOpen === relation.toUser._id}
